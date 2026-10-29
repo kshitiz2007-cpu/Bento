@@ -9,7 +9,7 @@ const PAPER = "#F4F1E9";
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: PAPER }}>
-      <StatusBar style="dark" backgroundColor={PAPER} />
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: PAPER }, animation: "fade" }} />
     </GestureHandlerRootView>
   );
