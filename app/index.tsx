@@ -1,5 +1,5 @@
-import { CivilPrepDashboard } from "@/components/civilprep/CivilPrepDashboard";
+import { CivilPrepCognitiveField } from "@/components/civilprep/CivilPrepCognitiveField";
 
 export default function HomeRoute() {
-  return <CivilPrepDashboard />;
+  return <CivilPrepCognitiveField />;
 }
