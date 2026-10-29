@@ -1,20 +1,42 @@
-# Bento — Hyper-Futuristic UI Lab
+# Bento — CivilPrep Figma-first UI Lab
 
-A UI-first Expo / React Native project for exploring a premium, futuristic EdTech design system before connecting real utilities or backend services.
+A UI-first Expo / React Native project for the premium, mobile-first CivilPrep exam-preparation experience by Gyankunj Academy.
 
-## Product direction
+## Design source of truth
 
-- Bento-grid dashboard and cinematic learning cards
-- Navy / graphite surfaces with restrained rose-lilac and champagne accents
-- Native-feeling motion, haptics and floating navigation
-- Reusable typography, spacing, color and elevation tokens
-- Mock data only in the first milestone
+**Figma file:** https://www.figma.com/design/wwUQCSNjh7RQGrKWjhhN97
 
-## Build strategy
+Current editable screens:
+- `01 — CivilPrep Home`: Bento dashboard, resume-learning hero, daily momentum, daily drill, current affairs, quick revision and floating navigation.
+- `02 — Study & Practice`: subject discovery, progress cards, quiz question and answer states.
 
-1. Establish a stable Expo + TypeScript foundation.
-2. Design and validate the visual UI with mock data.
-3. Refine navigation, motion, accessibility and Android performance.
-4. Integrate real services and utilities only after the UI is approved.
+## Visual system
 
-No backend credentials or production secrets belong in this repository.
+- Adaptive light learning surfaces with deep navy feature cards
+- Restrained rose-pink and violet accents
+- Bento cards, editorial typography and compact floating navigation
+- Reusable tokens in `src/theme.ts`
+- Hindi-ready typography and mobile-first spacing are design requirements
+- Initial milestone uses mock data only; no backend secrets or production credentials
+
+## Run locally
+
+Install dependencies using the package manager of your choice, then:
+
+```bash
+npm install
+npm run typecheck
+npm start
+```
+
+Use Expo Go or an Android emulator to preview the app. A successful typecheck/build has not yet been verified in this remote repository workflow.
+
+## Implementation plan
+
+1. Create and validate the editable Figma design before matching it in code.
+2. Implement the Home dashboard and shared design tokens.
+3. Implement Study, Notes/Resource, Quiz, PDF Reader, Performance, Live Classes and Profile screens.
+4. Validate Android back navigation, scrolling, touch targets, compact widths, long Hindi labels and loading/empty/error states.
+5. Connect real services only after the UI milestone is approved.
+
+All work for this redesign belongs on `feat/figma-first-ui-redesign`. Do not merge into `main` without approval.
