@@ -147,8 +147,8 @@ export function CivilPrepCognitiveField() {
           {screen === "mission" ? <>
             <View style={[s.heroGrid, desktop && s.heroGridDesktop]}>
               <View style={s.heroMain}>
-                <Eyebrow>YOUR NEXT STEP / DAILY MISSION</Eyebrow>
-                <Text style={s.heroTitle}>Make sense.{ "\n" }Then make progress.</Text>
+                <View style={s.heroKicker}><View style={s.heroKickerDot} /><Eyebrow>YOUR NEXT STEP / DAILY MISSION</Eyebrow></View>
+                <Text style={s.heroTitle}>Learn the system.{"\n"}Own the exam.</Text>
                 <Text style={s.heroBody}>One connected space for concepts, active recall, and exam-ready thinking.</Text>
                 <CognitiveHeroArtwork />
                 <View style={s.mission}>
