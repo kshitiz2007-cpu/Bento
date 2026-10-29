@@ -3,7 +3,7 @@ import {
   Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View,
 } from "react-native";
 import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
-import { CognitiveHeroArtwork } from "@/components/civilprep/CivilPrepVisualSystem";
+import { CognitiveHeroArtwork, SubjectArtwork } from "@/components/civilprep/CivilPrepVisualSystem";
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, Check, ChevronRight, Compass,
   Network, Search, Sparkles, Target, X,
@@ -175,7 +175,7 @@ export function CivilPrepCognitiveField() {
             <View style={s.sectionHead}><View><Eyebrow>YOUR STUDY WORLD</Eyebrow><Text style={s.sectionTitle}>Choose a territory.</Text></View><Text style={s.sectionNote}>Browse by topic, not by card grid.</Text></View>
             <TextInput accessibilityLabel="Search topics" value={query} onChangeText={setQuery} placeholder="Search Polity, Equality, Judgments…" placeholderTextColor={C.muted} style={s.searchInput} />
             <View style={[s.topicList, desktop && s.topicListDesktop]}>{filteredTopics.map((t, i) => <Pressable key={t.id} onPress={() => openTopic(t.id)} style={s.topicRow}>
-              <Text style={s.topicIndex}>{String(i + 1).padStart(2, "0")}</Text><View style={s.topicMain}><Eyebrow>{t.group}</Eyebrow><Text style={s.topicTitle}>{t.title}</Text><Text style={s.topicDescription}>{t.description}</Text></View><ChevronRight color={C.muted} size={18} />
+              <Text style={s.topicIndex}>{String(i + 1).padStart(2, "0")}</Text><SubjectArtwork variant={t.group === "BRIEFING" ? "current" : "polity"} size={44} /><View style={s.topicMain}><Eyebrow>{t.group}</Eyebrow><Text style={s.topicTitle}>{t.title}</Text><Text style={s.topicDescription}>{t.description}</Text></View><ChevronRight color={C.muted} size={18} />
             </Pressable>)}</View>
             {filteredTopics.length === 0 ? <Text style={s.empty}>No matching topics. Try a broader search.</Text> : null}
           </> : null}
