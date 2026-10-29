@@ -23,7 +23,7 @@ A UI-first Expo / React Native project for exploring a premium, futuristic EdTec
 
 ## Start locally
 
-Use Node.js compatible with Expo SDK 57 (Node 20.19+ recommended).
+Use Node.js 22.13.x or newer, matching the Expo SDK 57 baseline.
 
 ```bash
 npm install
