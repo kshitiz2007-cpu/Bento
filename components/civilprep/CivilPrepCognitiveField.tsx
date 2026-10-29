@@ -10,9 +10,9 @@ import {
 } from "lucide-react-native";
 
 const C = {
-  ink: "#172A27", paper: "#F4F1E9", lime: "#C6F36A", cobalt: "#355DCA",
-  muted: "#68736B", line: "#D9DDD3", panel: "#EAEDE4", white: "#FFFFFF",
-  darkMuted: "#C8D2CB", red: "#B94A48", green: "#2E7D55",
+  ink: "#151329", paper: "#F7F5FC", lime: "#E8FF72", cobalt: "#7357FF",
+  muted: "#77748B", line: "#E5E0F0", panel: "#EFEBF8", white: "#FFFFFF",
+  darkMuted: "#C9C5D9", red: "#C94C68", green: "#218A72",
 };
 
 type Screen = "mission" | "field" | "recall";
@@ -142,14 +142,14 @@ export function CivilPrepCognitiveField() {
           <View style={s.topbarRight}><View style={s.statusDot} /><Text style={s.topbarStatus}>PROTOTYPE MODE</Text></View>
         </View>
         <ScrollView contentContainerStyle={[s.page, desktop && s.pageDesktop]} showsVerticalScrollIndicator={false}>
-          <View style={s.notice}><Sparkles size={14} color={C.ink} /><Text style={s.noticeText}>{notice}</Text><Text style={s.sampleTag}>SAMPLE DATA</Text></View>
+          <View style={s.notice}><Sparkles size={14} color={C.cobalt} /><Text style={s.noticeText}>{notice}</Text><Text style={s.sampleTag}>LIVE PROTOTYPE</Text></View>
 
           {screen === "mission" ? <>
             <View style={[s.heroGrid, desktop && s.heroGridDesktop]}>
               <View style={s.heroMain}>
                 <Eyebrow>YOUR NEXT STEP / DAILY MISSION</Eyebrow>
                 <Text style={s.heroTitle}>Make sense.{ "\n" }Then make progress.</Text>
-                <Text style={s.heroBody}>A focused path through the syllabus, with the wider knowledge field always one step away.</Text>
+                <Text style={s.heroBody}>One connected space for concepts, active recall, and exam-ready thinking.</Text>
                 <CognitiveHeroArtwork />
                 <View style={s.mission}>
                   <View style={s.missionHead}><Eyebrow light>RECOMMENDED MISSION</Eyebrow><Target size={18} color={C.lime} /></View>
@@ -161,7 +161,7 @@ export function CivilPrepCognitiveField() {
               <View style={s.sideStack}>
                 <Pressable accessibilityRole="button" onPress={() => { setScreen("field"); setNotice("Explore connected syllabus concepts."); }} style={s.fieldPreview}>
                   <View style={s.previewHead}><Eyebrow>THE KNOWLEDGE FIELD</Eyebrow><ArrowRight size={17} color={C.ink} /></View>
-                  <Text style={s.previewTitle}>Your syllabus, connected.</Text>
+                  <Text style={s.previewTitle}>See the links others miss.</Text>
                   <FieldMap selectedId={topicId} onSelect={openTopic} />
                   <Text style={s.previewLink}>OPEN THE FIELD ↗</Text>
                 </Pressable>
@@ -172,7 +172,7 @@ export function CivilPrepCognitiveField() {
               </View>
             </View>
             <Rule />
-            <View style={s.sectionHead}><View><Eyebrow>YOUR STUDY WORLD</Eyebrow><Text style={s.sectionTitle}>Choose a territory.</Text></View><Text style={s.sectionNote}>Browse by topic, not by card grid.</Text></View>
+            <View style={s.sectionHead}><View><Eyebrow>YOUR STUDY WORLD</Eyebrow><Text style={s.sectionTitle}>Enter your next topic.</Text></View><Text style={s.sectionNote}>Explore the syllabus as a connected system.</Text></View>
             <TextInput accessibilityLabel="Search topics" value={query} onChangeText={setQuery} placeholder="Search Polity, Equality, Judgments…" placeholderTextColor={C.muted} style={s.searchInput} />
             <View style={[s.topicList, desktop && s.topicListDesktop]}>{filteredTopics.map((t, i) => <Pressable key={t.id} onPress={() => openTopic(t.id)} style={s.topicRow}>
               <Text style={s.topicIndex}>{String(i + 1).padStart(2, "0")}</Text><SubjectArtwork variant={t.group === "BRIEFING" ? "current" : "polity"} size={44} /><View style={s.topicMain}><Eyebrow>{t.group}</Eyebrow><Text style={s.topicTitle}>{t.title}</Text><Text style={s.topicDescription}>{t.description}</Text></View><ChevronRight color={C.muted} size={18} />
@@ -269,34 +269,36 @@ const s = StyleSheet.create({
   statusDot: { width: 6, height: 6, borderRadius: 4, backgroundColor: C.green },
   page: { paddingHorizontal: 18, paddingTop: 20, paddingBottom: 115 },
   pageDesktop: { paddingHorizontal: 38, paddingTop: 32, paddingBottom: 50, maxWidth: 1500, width: "100%", alignSelf: "center" },
-  notice: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 9, paddingHorizontal: 11, backgroundColor: "#E8EDDF", borderRadius: 8, marginBottom: 24 },
+  notice: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 11, paddingHorizontal: 13, backgroundColor: "#EAE5FF", borderRadius: 14, marginBottom: 28, borderWidth: 1, borderColor: "#DAD0FF" },
   noticeText: { color: C.ink, fontSize: 10, flex: 1 },
   sampleTag: { color: C.muted, fontSize: 7, fontWeight: "900", letterSpacing: .8 },
   heroGrid: { gap: 23, paddingBottom: 27 },
   heroGridDesktop: { flexDirection: "row", alignItems: "flex-start" },
   heroMain: { flex: 1.05, minWidth: 0 },
-  heroTitle: { color: C.ink, fontSize: 39, lineHeight: 43, letterSpacing: -1.7, fontWeight: "900", marginTop: 13 },
+  heroTitle: { color: C.ink, fontSize: 43, lineHeight: 44, letterSpacing: -2.2, fontWeight: "900", marginTop: 13 },
+  heroKicker: { flexDirection: "row", alignItems: "center", gap: 8 },
+  heroKickerDot: { width: 7, height: 7, borderRadius: 5, backgroundColor: C.cobalt },
   heroBody: { color: "#56635A", fontSize: 13, lineHeight: 21, maxWidth: 520, marginTop: 10, marginBottom: 20 },
-  mission: { backgroundColor: C.ink, padding: 19, borderRadius: 15, marginTop: 7 },
+  mission: { backgroundColor: C.ink, padding: 21, borderRadius: 24, marginTop: 12, borderWidth: 1, borderColor: "#37314F" },
   missionHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   eyebrow: { color: C.muted, fontSize: 8, lineHeight: 13, fontWeight: "900", letterSpacing: 1.25 },
   missionTitle: { color: C.paper, fontSize: 25, lineHeight: 30, fontWeight: "900", letterSpacing: -.7, marginTop: 15 },
   missionBody: { color: C.darkMuted, fontSize: 11, lineHeight: 17, marginTop: 7, maxWidth: 420 },
   missionMeta: { borderTopWidth: 1, borderTopColor: "#405148", paddingTop: 13, marginTop: 16, gap: 12 },
   missionMetaText: { color: C.darkMuted, fontSize: 8, fontWeight: "800", letterSpacing: .7 },
-  action: { alignSelf: "flex-start", minHeight: 42, paddingHorizontal: 13, paddingVertical: 11, borderRadius: 8, backgroundColor: C.lime, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 3 },
+  action: { alignSelf: "flex-start", minHeight: 46, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 14, backgroundColor: C.lime, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 3 },
   actionSecondary: { backgroundColor: "transparent", borderWidth: 1, borderColor: C.line },
   actionText: { color: C.ink, fontSize: 9, fontWeight: "900", letterSpacing: .7 },
   actionSecondaryText: { color: C.ink, fontSize: 9, fontWeight: "900", letterSpacing: .7 },
   sideStack: { flex: .95, minWidth: 0, gap: 14 },
-  fieldPreview: { backgroundColor: C.panel, padding: 15, borderRadius: 14 },
+  fieldPreview: { backgroundColor: "#EAE5FF", padding: 17, borderRadius: 24, borderWidth: 1, borderColor: "#DDD3FF" },
   previewHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   previewTitle: { color: C.ink, fontSize: 19, fontWeight: "900", letterSpacing: -.5, marginTop: 8 },
-  mapFrame: { backgroundColor: "#EEF0E8", borderRadius: 12, padding: 7, marginTop: 12, overflow: "hidden" },
+  mapFrame: { backgroundColor: "#F3F0FA", borderRadius: 20, padding: 7, marginTop: 12, overflow: "hidden" },
   mapHint: { color: C.muted, fontSize: 9, lineHeight: 15 },
   previewLink: { color: C.cobalt, fontSize: 9, fontWeight: "900", letterSpacing: .7, marginTop: 10 },
   quickRow: { flexDirection: "row", gap: 10 },
-  quickAction: { flex: 1, minWidth: 0, backgroundColor: "#E9EDE4", borderRadius: 12, padding: 13, gap: 7 },
+  quickAction: { flex: 1, minWidth: 0, backgroundColor: C.white, borderRadius: 19, padding: 15, gap: 8, borderWidth: 1, borderColor: C.line },
   quickTitle: { color: C.ink, fontSize: 12, fontWeight: "900" },
   quickSub: { color: C.muted, fontSize: 9, lineHeight: 14 },
   rule: { height: 1, backgroundColor: C.line, marginVertical: 15 },
@@ -304,11 +306,11 @@ const s = StyleSheet.create({
   sectionTitle: { color: C.ink, fontSize: 25, lineHeight: 30, fontWeight: "900", letterSpacing: -.8, marginTop: 5 },
   sectionNote: { color: C.muted, fontSize: 9, maxWidth: 180, textAlign: "right" },
   searchInput: { height: 43, borderBottomWidth: 1, borderBottomColor: "#AAB4A9", color: C.ink, fontSize: 12, marginBottom: 8, paddingHorizontal: 3 },
-  topicList: { borderTopWidth: 1, borderTopColor: C.line },
+  topicList: { paddingTop: 8 },
   topicListDesktop: { maxWidth: 900 },
-  topicRow: { flexDirection: "row", alignItems: "center", gap: 13, paddingVertical: 15, paddingHorizontal: 10, borderBottomWidth: 1, borderBottomColor: C.line },
+  topicRow: { flexDirection: "row", alignItems: "center", gap: 13, paddingVertical: 17, paddingHorizontal: 13, marginBottom: 9, borderRadius: 18, backgroundColor: C.white, borderWidth: 1, borderColor: C.line },
   topicRowActive: { backgroundColor: C.ink, borderRadius: 9 },
-  topicIndex: { color: C.cobalt, fontSize: 10, fontWeight: "900", alignSelf: "flex-start", marginTop: 3 },
+  topicIndex: { color: C.cobalt, fontSize: 10, fontWeight: "900", alignSelf: "flex-start", marginTop: 3, backgroundColor: "#EEE9FF", overflow: "hidden", borderRadius: 7, paddingHorizontal: 6, paddingVertical: 4 },
   topicMain: { flex: 1, minWidth: 0 },
   topicTitle: { color: C.ink, fontSize: 15, fontWeight: "800", marginTop: 3 },
   topicTitleActive: { color: C.paper },
@@ -367,7 +369,7 @@ const s = StyleSheet.create({
   footer: { borderTopWidth: 1, borderTopColor: C.line, paddingTop: 15, marginTop: 36, gap: 6 },
   footerBrand: { color: C.ink, fontSize: 9, fontWeight: "900", letterSpacing: .8 },
   footerNote: { color: C.muted, fontSize: 8, letterSpacing: .6 },
-  mobileDock: { position: "absolute", left: 12, right: 12, bottom: 10, backgroundColor: C.ink, borderRadius: 15, minHeight: 66, flexDirection: "row", alignItems: "center", justifyContent: "space-around", paddingHorizontal: 7, paddingVertical: 8, borderWidth: 1, borderColor: "#405148" },
+  mobileDock: { position: "absolute", left: 12, right: 12, bottom: 10, backgroundColor: "#17142B", borderRadius: 23, minHeight: 72, flexDirection: "row", alignItems: "center", justifyContent: "space-around", paddingHorizontal: 8, paddingVertical: 9, borderWidth: 1, borderColor: "#39334F", shadowColor: "#17142B", shadowOpacity: 0.22, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
   mobileNavItem: { flex: 1, minHeight: 45, justifyContent: "center", paddingHorizontal: 4, gap: 3, borderRadius: 9, alignItems: "center" },
   mobileNavText: { color: C.darkMuted, fontSize: 8, fontWeight: "800", letterSpacing: .4 },
 });
