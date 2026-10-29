@@ -1,25 +1,25 @@
-# Bento — Hyper-Futuristic UI Lab
+# Bento — CivilPrep Fieldwork UI
 
-A UI-first Expo / React Native project for exploring a premium, futuristic EdTech design system before connecting real utilities or backend services.
+A UI-first Expo / React Native concept for a distinct CivilPrep learning environment. The design direction is editorial and spatial rather than a conventional dashboard: warm paper surfaces, oversized typography, an indexed learning atlas, newspaper-like current-affairs briefings, and a focused retrieval-practice zone.
 
-## Current milestone: UI foundation
+## Current milestone: editorial dashboard
 
-- Dark graphite / navy surfaces with restrained lilac, rose and champagne accents.
-- Bento-grid learning dashboard and reusable cards.
-- Floating translucent bottom navigation.
-- Study, Tests, Library and Profile screen concepts.
-- Mock data only; no authentication, backend, payments, streaming or production utility integration.
+- A typographic masthead and daily edition framing.
+- Asymmetric feature layout instead of repeated card grids.
+- Learning atlas with indexed subject rows and progress traces.
+- Editorial current-affairs briefing with a lead story and secondary reading rail.
+- Dedicated dark focus panel and retrieval-practice band.
+- Responsive desktop navigation rail and compact mobile navigation dock.
+- Sample data only; no authentication, backend, payments, streaming, or production utility integration.
 
 ## Stack
 
 - Expo SDK 57 + React Native + TypeScript
 - Expo Router
-- NativeWind v4 + Tailwind CSS v3
-- React Native Reusables-inspired custom primitives
-- Reanimated + Worklets + Gesture Handler
-- Expo Blur, Linear Gradient, Haptics, Image and Font
-- Lucide React Native + SVG
-- Skia and Lottie dependencies are present for later visual experiments; use them only where a screen benefits from them.
+- NativeWind v4 + Tailwind CSS v3 (available in project; this screen uses explicit style tokens)
+- Expo Linear Gradient
+- Lucide React Native
+- Existing project dependencies include Reanimated, Worklets, Gesture Handler, Blur, Haptics, Image, Font, SVG, Skia and Lottie for selective future use.
 
 ## Start locally
 
@@ -28,20 +28,23 @@ Use Node.js 22.13.x or newer, matching the Expo SDK 57 baseline.
 ```bash
 npm install
 npx expo install --fix
+npm run typecheck
+npm run build:web
 npx expo start
 ```
 
-Use a compatible Expo Go build or a development build when native dependencies require it. Run Expo diagnostics and typecheck before treating the project as build-verified.
+Use a compatible Expo Go build or a development build when native dependencies require it. Run Expo diagnostics and validate on Android and web before treating the UI as build-verified.
 
 ## Design rules
 
-1. Build the visual experience with mock data first.
-2. Keep tokens and shared primitives centralized.
-3. Use motion only when it improves hierarchy or feedback.
-4. Respect reduced motion, contrast, Hindi readability and Android touch targets.
-5. Do not add backend credentials or production secrets.
-6. Integrate real utilities only after the UI direction is reviewed.
+1. Do not turn every content type into the same card.
+2. Let content shape its own layout: editorial stories, indexed syllabus regions, timed drills, and progress traces each have distinct visual grammar.
+3. Use typography, whitespace, rules, and asymmetry as primary hierarchy—not decorative gradients.
+4. Keep Hindi legible, touch targets accessible, and layouts responsive.
+5. Use motion and canvas effects only where they add meaning.
+6. Do not add backend credentials or production secrets.
+7. Integrate real services only after the UI direction is reviewed.
 
 ## Status
 
-Initial UI concept only; dependencies have not been installed and the app has not yet been built or tested on a device.
+Visual concept implementation in progress. The screen uses illustrative sample metrics and interactions. Dependency installation, typecheck, web export, Expo diagnostics, and device validation remain required.
