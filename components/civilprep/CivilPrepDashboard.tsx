@@ -1,523 +1,366 @@
 import React, { useMemo, useState } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import {
-  Activity,
-  ArrowDownToLine,
-  ArrowRight,
-  Atom,
-  Bell,
-  BookOpen,
-  BookOpenCheck,
-  Bookmark,
-  BrainCircuit,
-  CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  CircleHelp,
-  Clock3,
-  Compass,
-  Flame,
-  FlaskConical,
-  GraduationCap,
-  Home,
-  Landmark,
-  Library,
-  Menu,
-  Search,
-  Settings2,
-  ShieldCheck,
-  Sparkles,
-  Target,
-  Trophy,
-  Users,
-  Video,
-  Zap,
+  Activity, ArrowDownRight, ArrowRight, ArrowUpRight, Atom, AudioLines, BookOpen,
+  BrainCircuit, CalendarDays, Check, ChevronRight, CircleHelp, Clock3, Compass,
+  Flame, GraduationCap, Landmark, Layers3, Menu, Search, Sparkles, Target,
+  Timer, Trophy, Waypoints, Zap
 } from "lucide-react-native";
 
-type NavItem = { label: string; icon: React.ComponentType<any> };
-const NAV_ITEMS: NavItem[] = [
-  { label: "Home", icon: Home },
-  { label: "Study", icon: BookOpen },
-  { label: "Current Affairs", icon: CalendarDays },
-  { label: "Tests & Drills", icon: BrainCircuit },
-  { label: "Live Classes", icon: Video },
-  { label: "Notes & Resources", icon: Library },
-  { label: "My Progress", icon: Activity },
-  { label: "Downloads", icon: ArrowDownToLine },
+const INK = "#17211D";
+const MUTED = "#737B72";
+const PAPER = "#F2F0E7";
+const BLUE = "#354BEA";
+const LIME = "#D9F56A";
+const RULE = "#D8D8CC";
+
+const SECTIONS = [
+  { label: "Overview", index: "01" },
+  { label: "Learn", index: "02" },
+  { label: "Briefing", index: "03" },
+  { label: "Practice", index: "04" },
+  { label: "Progress", index: "05" },
 ];
 const SUBJECTS = [
-  { name: "Polity & Governance", count: "120+ resources", icon: Landmark, colors: ["#312E81", "#172554"] as const },
-  { name: "Economy", count: "95+ resources", icon: Activity, colors: ["#78350F", "#1E293B"] as const },
-  { name: "International Relations", count: "80+ resources", icon: Atom, colors: ["#1D4ED8", "#172554"] as const },
-  { name: "Environment", count: "75+ resources", icon: FlaskConical, colors: ["#065F46", "#0F172A"] as const },
-  { name: "Science & Tech", count: "90+ resources", icon: Zap, colors: ["#4338CA", "#172554"] as const },
-  { name: "History & Culture", count: "110+ resources", icon: Landmark, colors: ["#9A3412", "#1E1B4B"] as const },
+  { name: "Constitutional India", short: "POLITY", count: "24 field notes", icon: Landmark, number: "01", progress: 68 },
+  { name: "The living economy", short: "ECONOMY", count: "18 field notes", icon: Activity, number: "02", progress: 42 },
+  { name: "Earth systems", short: "GEOGRAPHY", count: "16 field notes", icon: Compass, number: "03", progress: 81 },
+  { name: "Science at the edge", short: "SCIENCE", count: "12 field notes", icon: Atom, number: "04", progress: 27 },
 ];
-const QUICK_ACTIONS = [
-  { label: "Study Notes", icon: BookOpen, colors: ["#7C3AED", "#4F46E5"] as const },
-  { label: "Practice Quiz", icon: BrainCircuit, colors: ["#DB2777", "#7C3AED"] as const },
-  { label: "Current Affairs", icon: CalendarDays, colors: ["#0891B2", "#4F46E5"] as const },
-  { label: "Mock Tests", icon: Target, colors: ["#D97706", "#DB2777"] as const },
+const BRIEFINGS = [
+  { category: "POLITY", title: "Finance Commission: the fiscal compact", time: "06 MIN", color: "#354BEA" },
+  { category: "ENVIRONMENT", title: "A new lens on biodiversity finance", time: "04 MIN", color: "#527A35" },
+  { category: "SCIENCE", title: "Semiconductors and strategic autonomy", time: "08 MIN", color: "#B65A3C" },
 ];
 
-function GlassPanel({ children, style }: { children: React.ReactNode; style?: object }) {
-  return <View style={[styles.panel, style]}>{children}</View>;
+function Rule({ style }: { style?: object }) { return <View style={[styles.rule, style]} />; }
+function Eyebrow({ children, color = MUTED }: { children: React.ReactNode; color?: string }) {
+  return <Text style={[styles.eyebrow, { color }]}>{children}</Text>;
 }
-
-function SectionTitle({ title, hint }: { title: string; hint?: string }) {
-  return (
-    <View style={styles.sectionHeading}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {hint ? <Text style={styles.sectionHint}>{hint}</Text> : null}
-    </View>
-  );
-}
-
-function Metric({ icon: Icon, value, label, tone }: { icon: React.ComponentType<any>; value: string; label: string; tone: string }) {
-  return (
-    <GlassPanel style={styles.metric}>
-      <View style={[styles.metricIcon, { backgroundColor: tone + "22" }]}>
-        <Icon size={18} color={tone} strokeWidth={2.2} />
-      </View>
-      <View style={styles.metricText}>
-        <Text style={styles.metricValue}>{value}</Text>
-        <Text style={styles.metricLabel}>{label}</Text>
-      </View>
-    </GlassPanel>
-  );
+function Action({ children, onPress, inverted = false }: { children: React.ReactNode; onPress: () => void; inverted?: boolean }) {
+  return <Pressable onPress={onPress} style={[styles.action, inverted && styles.actionInverted]}>{children}</Pressable>;
 }
 
 export function CivilPrepDashboard() {
   const { width } = useWindowDimensions();
-  const isDesktop = width >= 1080;
-  const isTablet = width >= 720;
-  const [activeNav, setActiveNav] = useState("Home");
-  const [query, setQuery] = useState("");
-  const [activeSubject, setActiveSubject] = useState<string | null>(null);
-  const [notice, setNotice] = useState("Your learning space is ready. Pick up where you left off.");
-  const filteredSubjects = useMemo(
-    () => SUBJECTS.filter((subject) => subject.name.toLowerCase().includes(query.toLowerCase())),
-    [query],
-  );
+  const wide = width >= 1120;
+  const mid = width >= 760;
+  const [section, setSection] = useState("Overview");
+  const [filter, setFilter] = useState("");
+  const [selected, setSelected] = useState("Constitutional India");
+  const [notice, setNotice] = useState("Your field notes are ready.");
+  const [drillStarted, setDrillStarted] = useState(false);
+  const filtered = useMemo(() => SUBJECTS.filter(s => (s.name + s.short).toLowerCase().includes(filter.toLowerCase())), [filter]);
 
-  const Sidebar = (
-    <View style={[styles.sidebar, !isDesktop && styles.mobileSidebar]}>
-      <View style={styles.brandRow}>
-        <LinearGradient colors={["#F472B6", "#8B5CF6", "#38BDF8"]} style={styles.brandMark}>
-          <GraduationCap color="#FFFFFF" size={21} strokeWidth={2.4} />
-        </LinearGradient>
-        <Text style={styles.brandName}>Civil<Text style={styles.brandAccent}>Prep</Text></Text>
-      </View>
-      <Text style={styles.sidebarEyebrow}>YOUR WORKSPACE</Text>
-      {NAV_ITEMS.map(({ label, icon: Icon }) => {
-        const selected = activeNav === label;
-        return (
-          <Pressable
-            key={label}
-            onPress={() => {
-              setActiveNav(label);
-              setNotice(label === "Home" ? "Welcome back. Your next step is waiting." : label + " workspace selected — UI preview uses sample content.");
-            }}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            style={[styles.navItem, selected && styles.navItemActive]}
-          >
-            <Icon size={17} color={selected ? "#F5D0FE" : "#9AA8C8"} />
-            <Text style={[styles.navLabel, selected && styles.navLabelActive]}>{label}</Text>
-            {selected ? <View style={styles.navDot} /> : null}
-          </Pressable>
-        );
+  const nav = (
+    <View style={[styles.rail, !wide && styles.railCompact]}>
+      <View style={styles.brandMark}><GraduationCap size={22} color={PAPER} /></View>
+      {SECTIONS.map((item) => {
+        const active = item.label === section;
+        return <Pressable key={item.label} onPress={() => { setSection(item.label); setNotice(item.label + " workspace selected."); }} style={[styles.railItem, active && styles.railItemActive]}>
+          <Text style={[styles.railIndex, active && styles.railIndexActive]}>{item.index}</Text>
+          {wide ? <Text style={[styles.railLabel, active && styles.railLabelActive]}>{item.label}</Text> : null}
+        </Pressable>;
       })}
-      <View style={styles.sidebarSpacer} />
-      <LinearGradient colors={["#211748", "#111A35"]} style={styles.streakCard}>
-        <View style={styles.streakTop}>
-          <Flame size={20} color="#FDBA74" fill="#FB923C" />
-          <Text style={styles.streakDays}>12-day streak</Text>
-        </View>
-        <Text style={styles.streakTitle}>Consistency wins.</Text>
-        <Text style={styles.streakSub}>A little progress every day adds up.</Text>
-        <View style={styles.streakProgress}><View style={styles.streakProgressFill} /></View>
-      </LinearGradient>
-      <Pressable style={styles.profileRow} onPress={() => setNotice("Profile preview selected.")}>
-        <LinearGradient colors={["#C084FC", "#EC4899"]} style={styles.avatar}><Text style={styles.avatarText}>K</Text></LinearGradient>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.profileName}>Learner Profile</Text>
-          <Text style={styles.profileSub}>UPSC Aspirant</Text>
-        </View>
-        <Settings2 size={17} color="#8290B2" />
-      </Pressable>
+      <View style={{ flex: 1 }} />
+      <Pressable onPress={() => setNotice("Your saved field notes are up to date.")} style={styles.railBottom}><Layers3 size={18} color={INK} /></Pressable>
     </View>
   );
 
   return (
-    <View style={styles.app}>
-      {isDesktop ? Sidebar : null}
-      <View style={styles.main}>
-        <View style={styles.topbar}>
-          {!isDesktop ? (
-            <Pressable style={styles.mobileBrand} onPress={() => setActiveNav("Home")}>
-              <LinearGradient colors={["#F472B6", "#8B5CF6"]} style={styles.brandMarkSmall}>
-                <GraduationCap size={17} color="#FFFFFF" />
-              </LinearGradient>
-              <Text style={styles.brandName}>Civil<Text style={styles.brandAccent}>Prep</Text></Text>
-            </Pressable>
-          ) : null}
-          <View style={[styles.searchBox, !isDesktop && styles.searchBoxMobile]}>
-            <Search size={17} color="#7F8DB0" />
-            <Text
-              style={styles.searchPlaceholder}
-              onPress={() => setNotice("Search preview: type a subject name in the subject filter below.")}
-              numberOfLines={1}
-            >Search notes, videos, tests, current affairs…</Text>
-            {isDesktop ? <Text style={styles.shortcut}>⌘ K</Text> : null}
-          </View>
-          <View style={styles.topActions}>
-            <View style={styles.topStreak}><Flame size={15} color="#FDBA74" /><Text style={styles.topStreakText}>12 days</Text></View>
-            <Pressable style={styles.iconButton} onPress={() => setNotice("You’re all caught up — no new notifications.")} accessibilityLabel="Notifications">
-              <Bell size={18} color="#B8C4E3" />
-              <View style={styles.notificationDot} />
-            </Pressable>
+    <View style={styles.root}>
+      {wide ? nav : null}
+      <View style={styles.workspace}>
+        <View style={styles.topline}>
+          {!wide ? <View style={styles.brandInline}><View style={styles.brandMarkSmall}><GraduationCap size={17} color={PAPER} /></View><Text style={styles.brandWord}>CIVILPREP<span> / FIELDWORK</span></Text></View> : <Eyebrow> CIVILPREP / FIELDWORK — VOL. 01 </Eyebrow>}
+          <View style={styles.toplineRight}>
+            <View style={styles.liveDot} /><Text style={styles.toplineMeta}>YOUR STUDY SYSTEM</Text>
+            <Pressable onPress={() => setNotice("Search is ready — filter the learning atlas below.")} style={styles.searchButton}><Search size={16} color={INK} /><Text style={styles.searchButtonText}>SEARCH</Text></Pressable>
           </View>
         </View>
-
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={[styles.content, !isDesktop && styles.contentCompact]}
-          showsVerticalScrollIndicator={false}
-        >
-          <LinearGradient
-            colors={["#30205F", "#171C45", "#101A33"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hero}
-          >
-            <View style={styles.heroGlowOne} />
-            <View style={styles.heroGlowTwo} />
-            <View style={styles.heroCopy}>
-              <View style={styles.eyebrowPill}><Sparkles size={13} color="#F0ABFC" /><Text style={styles.eyebrowText}>YOUR PERSONAL LEARNING SPACE</Text></View>
-              <Text style={styles.heroWelcome}>Welcome back, Kshitiz <Text style={{ color: "#F9A8D4" }}>✦</Text></Text>
-              <Text style={styles.heroTitle}>लक्ष्य स्पष्ट है,{"\n"}और आप सही दिशा में हैं।</Text>
-              <Text style={styles.heroSubtitle}>Structured learning · Daily practice · Real progress</Text>
-              <View style={styles.heroSearch}>
-                <Search size={18} color="#D8C9FF" />
-                <Text style={styles.heroSearchText} numberOfLines={1}>आज आप क्या सीखना चाहते हैं?</Text>
-                <Pressable style={styles.heroSearchButton} onPress={() => setActiveNav("Study")} accessibilityLabel="Explore study topics">
-                  <ArrowRight size={17} color="#FFFFFF" />
-                </Pressable>
-              </View>
+        {!wide ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mobileNav}>
+          {SECTIONS.map(item => <Pressable key={item.label} onPress={() => { setSection(item.label); setNotice(item.label + " workspace selected."); }} style={[styles.mobileNavItem, section === item.label && styles.mobileNavItemActive]}><Text style={[styles.mobileNavText, section === item.label && styles.mobileNavTextActive]}>{item.index}  {item.label}</Text></Pressable>)}
+        </ScrollView> : null}
+        <ScrollView contentContainerStyle={[styles.page, !wide && styles.pageMobile]} showsVerticalScrollIndicator={false}>
+          <View style={styles.masthead}>
+            <View style={styles.mastheadTitle}>
+              <Eyebrow color={BLUE}>THURSDAY, 29 OCTOBER 2026  /  YOUR DAILY EDITION</Eyebrow>
+              <Text style={styles.greeting}>Good evening,</Text>
+              <Text style={styles.nameTitle}>Kshitiz<Text style={styles.period}>.</Text></Text>
+              <Text style={styles.intro}>The syllabus is vast. Your next move doesn't have to be.</Text>
             </View>
-            {isTablet ? (
-              <View style={styles.heroQuote}>
-                <View style={styles.quoteMark}><Sparkles size={18} color="#E9D5FF" /></View>
-                <Text style={styles.quoteText}>“तैयारी सिर्फ परीक्षा के लिए नहीं, एक बेहतर भविष्य के लिए है।”</Text>
-                <View style={styles.quoteDivider} />
-                {[
-                  { title: "Learn", desc: "Concepts with structured notes", icon: BookOpen },
-                  { title: "Practice", desc: "MCQs, quizzes and mock tests", icon: BrainCircuit },
-                  { title: "Track", desc: "See your progress clearly", icon: Activity },
-                ].map(({ title, desc, icon: Icon }) => (
-                  <View style={styles.quoteFeature} key={title}>
-                    <View style={styles.quoteFeatureIcon}><Icon size={15} color="#D8B4FE" /></View>
-                    <View><Text style={styles.quoteFeatureTitle}>{title}</Text><Text style={styles.quoteFeatureDesc}>{desc}</Text></View>
+            <View style={styles.editionStamp}>
+              <Text style={styles.stampTop}>TODAY'S</Text><Text style={styles.stampMain}>FIELD</Text><Text style={styles.stampMain}>NOTES</Text>
+              <Rule style={{ backgroundColor: INK, marginVertical: 9 }} />
+              <Text style={styles.stampDate}>ED. 029 / 365</Text>
+            </View>
+          </View>
+
+          <View style={styles.statusLine}><View style={styles.statusMark}><Sparkles size={13} color={INK} /></View><Text style={styles.statusText}>{notice}</Text><Text style={styles.statusRight}>SYSTEM STATUS  <Text style={{ color: "#3C8555" }}>● READY</Text></Text></View>
+          <Rule />
+
+          <View style={[styles.leadGrid, !mid && styles.stack]}>
+            <View style={styles.leadStory}>
+              <View style={styles.storyMeta}><Eyebrow color={BLUE}>01 / THE BIG PICTURE</Eyebrow><View style={styles.metaDash} /><Eyebrow>4 MIN READ</Eyebrow></View>
+              <Text style={styles.leadHeadline}>Make sense.{ "\n" }Then make progress.</Text>
+              <Text style={styles.leadBody}>A sharper way to prepare for the civil services: connect ideas, test what you know, and return to what matters.</Text>
+              <Action onPress={() => { setSection("Learn"); setNotice("Your learning atlas is ready below."); }}><Text style={styles.actionText}>ENTER YOUR LEARNING ATLAS</Text><ArrowUpRight size={17} color={PAPER} /></Action>
+            </View>
+            <View style={styles.focusPanel}>
+              <View style={styles.focusTop}><Eyebrow color={LIME}>YOUR FOCUS WINDOW</Eyebrow><AudioLines size={19} color={LIME} /></View>
+              <Text style={styles.focusNumber}>38<Text style={styles.focusUnit}> min</Text></Text>
+              <Text style={styles.focusDescription}>One deliberate session beats an hour of distracted scrolling.</Text>
+              <View style={styles.focusTrack}><View style={styles.focusTrackFill} /></View>
+              <View style={styles.focusBottom}><Text style={styles.focusSmall}>TODAY'S DEEP WORK</Text><Text style={styles.focusSmall}>22 / 38 MIN</Text></View>
+              <Pressable onPress={() => { setDrillStarted(!drillStarted); setNotice(drillStarted ? "Focus session paused." : "Focus session started — 16 minutes to your goal."); }} style={styles.focusPlay}><Text style={styles.focusPlayText}>{drillStarted ? "PAUSE SESSION" : "START FOCUS SESSION"}</Text><ArrowRight size={15} color={INK} /></Pressable>
+            </View>
+          </View>
+
+          <View style={styles.metricsStrip}>
+            <View style={styles.metricCell}><Eyebrow>STREAK</Eyebrow><Text style={styles.metricBig}>12<Text style={styles.metricSuffix}> days</Text></Text><Text style={styles.metricNote}><Flame size={12} color="#B65A3C" /> Still in motion</Text></View>
+            <Rule style={styles.metricDivider} />
+            <View style={styles.metricCell}><Eyebrow>RECALL RATE</Eyebrow><Text style={styles.metricBig}>78<Text style={styles.metricSuffix}>%</Text></Text><Text style={styles.metricNote}><ArrowUpRight size={12} color="#3C8555" /> +6% this month</Text></View>
+            <Rule style={styles.metricDivider} />
+            <View style={styles.metricCell}><Eyebrow>QUESTIONS</Eyebrow><Text style={styles.metricBig}>142</Text><Text style={styles.metricNote}>Across 9 topics</Text></View>
+            <Rule style={styles.metricDivider} />
+            <View style={styles.metricCell}><Eyebrow>MOCKS</Eyebrow><Text style={styles.metricBig}>05</Text><Text style={styles.metricNote}>Last score 112/200</Text></View>
+          </View>
+
+          <View style={styles.sectionHeader}>
+            <View><Eyebrow color={BLUE}>02 / THE LEARNING ATLAS</Eyebrow><Text style={styles.sectionHeadline}>Where will you go next?</Text></View>
+            <View style={styles.filterBox}><Search size={14} color={MUTED} /><TextInput value={filter} onChangeText={setFilter} placeholder="Find a territory…" placeholderTextColor={MUTED} style={styles.filterInput} accessibilityLabel="Filter learning atlas" /></View>
+          </View>
+          <View style={[styles.atlasLayout, !mid && styles.stack]}>
+            <View style={styles.atlasIndex}>
+              <Text style={styles.atlasIndexBig}>A—Z</Text><Rule /><Text style={styles.atlasIndexText}>THE{ "\n" }SYLLABUS{ "\n" }IS A{ "\n" }TERRITORY.</Text>
+              <View style={styles.atlasCompass}><Compass size={39} color={BLUE} strokeWidth={1.1} /><View style={styles.compassCenter} /></View>
+              <Eyebrow>SELECT A REGION</Eyebrow>
+            </View>
+            <View style={styles.atlasList}>
+              {filtered.map((subject, i) => {
+                const Icon = subject.icon;
+                const active = selected === subject.name;
+                return <Pressable key={subject.name} onPress={() => { setSelected(subject.name); setNotice(subject.name + " selected in your learning atlas."); }} style={[styles.atlasRow, active && styles.atlasRowActive]}>
+                  <Text style={[styles.atlasNumber, active && styles.atlasNumberActive]}>{subject.number}</Text>
+                  <View style={styles.atlasRowMain}>
+                    <Eyebrow color={active ? LIME : MUTED}>{subject.short}</Eyebrow>
+                    <Text style={[styles.atlasTitle, active && styles.atlasTitleActive]}>{subject.name}</Text>
+                    <Text style={[styles.atlasCount, active && styles.atlasCountActive]}>{subject.count}</Text>
+                    <View style={[styles.atlasProgress, active && styles.atlasProgressActive]}><View style={[styles.atlasProgressFill, { width: subject.progress + "%" }, active && styles.atlasProgressFillActive]} /></View>
                   </View>
-                ))}
-              </View>
-            ) : null}
-            <View style={styles.heroOrbs}><View style={styles.orbLarge} /><View style={styles.orbSmall} /></View>
-          </LinearGradient>
-
-          <View style={styles.noticeRow}>
-            <CheckCircle2 size={15} color="#6EE7B7" />
-            <Text style={styles.noticeText}>{notice}</Text>
-          </View>
-
-          <View style={styles.metricsGrid}>
-            <Metric icon={Flame} value="12 days" label="Learning streak" tone="#FDBA74" />
-            <Metric icon={BookOpenCheck} value="142" label="Questions solved" tone="#C084FC" />
-            <Metric icon={Activity} value="78%" label="Overall accuracy" tone="#34D399" />
-            <Metric icon={Target} value="05" label="Mock tests" tone="#60A5FA" />
-          </View>
-
-          <View style={styles.continueWrap}>
-            <GlassPanel style={styles.continueCard}>
-              <LinearGradient colors={["#1D2A57", "#151B3B"]} style={styles.continueIcon}><BookOpen size={23} color="#C4B5FD" /></LinearGradient>
-              <View style={styles.continueInfo}>
-                <Text style={styles.continueEyebrow}>CONTINUE LEARNING</Text>
-                <Text style={styles.continueTitle}>भारतीय संविधान का विकास</Text>
-                <Text style={styles.continueMeta}>Notes · Polity · 18 min left</Text>
-                <View style={styles.progressTrack}><View style={styles.progressFill} /></View>
-                <Text style={styles.progressLabel}>65% completed</Text>
-              </View>
-              <Pressable style={styles.playButton} onPress={() => { setActiveNav("Study"); setNotice("Continue learning: भारतीय संविधान का विकास (sample route preview)."); }} accessibilityLabel="Continue learning">
-                <ArrowRight size={19} color="#FFFFFF" />
-              </Pressable>
-            </GlassPanel>
-          </View>
-
-          <View style={styles.sectionBlock}>
-            <SectionTitle title="Explore by Subject" hint="BROWSE LIBRARY  →" />
-            <View style={styles.subjectSearch}>
-              <Search size={15} color="#7F8DB0" />
-              <TextInput value={query} onChangeText={setQuery} placeholder="Filter subjects by name…" placeholderTextColor="#7F8DB0" autoCapitalize="none" style={styles.subjectSearchInput} accessibilityLabel="Filter subjects by name" />
-              {query ? <Pressable onPress={() => setQuery("")}><Text style={styles.clearText}>Clear</Text></Pressable> : null}
-            </View>
-            <View style={[styles.subjectGrid, !isTablet && styles.subjectGridMobile]}>
-              {filteredSubjects.map(({ name, count, icon: Icon, colors }) => (
-                <Pressable key={name} style={[styles.subjectCard, { maxWidth: isDesktop ? "32%" : "48%", flexBasis: isDesktop ? 150 : "46%" }, activeSubject === name && styles.subjectCardSelected]} onPress={() => { setActiveSubject(name); setNotice(name + " selected. Subject resources are sample data in this UI milestone."); }}>
-                  <LinearGradient colors={colors} style={styles.subjectArtwork}>
-                    <View style={styles.artworkGlow} />
-                    <Icon size={isDesktop ? 32 : 27} color="#E0E7FF" strokeWidth={1.5} />
-                    <View style={styles.artworkOrb} />
-                  </LinearGradient>
-                  <View style={styles.subjectCardBottom}>
-                    <Text style={styles.subjectName} numberOfLines={2}>{name}</Text>
-                    <Text style={styles.subjectCount}>{count}</Text>
-                  </View>
-                  <View style={styles.subjectArrow}><ChevronRight size={14} color="#C4B5FD" /></View>
-                </Pressable>
-              ))}
-              {filteredSubjects.length === 0 ? (
-                <GlassPanel style={styles.emptyState}>
-                  <CircleHelp size={22} color="#C4B5FD" />
-                  <Text style={styles.emptyTitle}>No matching subjects</Text>
-                  <Text style={styles.emptyCopy}>Try “Polity”, “Economy” or “History”.</Text>
-                  <Pressable onPress={() => setQuery("")} style={styles.smallAction}><Text style={styles.smallActionText}>Reset filter</Text></Pressable>
-                </GlassPanel>
-              ) : null}
-            </View>
-          </View>
-
-          <View style={[styles.lowerGrid, !isTablet && styles.lowerGridMobile]}>
-            <GlassPanel style={styles.dailyCard}>
-              <SectionTitle title="Your Daily Drill" hint="TODAY" />
-              <Text style={styles.cardIntro}>Small, focused sessions create lasting recall.</Text>
-              {[
-                { label: "Revise Fundamental Rights", meta: "Polity · 10 questions", done: true },
-                { label: "Read today’s current affairs", meta: "Daily crux · 8 min", done: false },
-                { label: "Attempt a quick practice set", meta: "Mixed topics · 15 min", done: false },
-              ].map((task) => (
-                <Pressable key={task.label} style={styles.taskRow} onPress={() => setNotice(task.label + " selected for your daily plan.")}>
-                  <View style={[styles.taskCheck, task.done && styles.taskCheckDone]}>{task.done ? <CheckCircle2 size={15} color="#6EE7B7" /> : <View style={styles.taskCheckInner} />}</View>
-                  <View style={{ flex: 1 }}><Text style={styles.taskTitle}>{task.label}</Text><Text style={styles.taskMeta}>{task.meta}</Text></View>
-                  <ChevronRight size={16} color="#7F8DB0" />
-                </Pressable>
-              ))}
-            </GlassPanel>
-            <GlassPanel style={styles.progressCard}>
-              <SectionTitle title="Progress Snapshot" hint="THIS WEEK" />
-              <View style={styles.progressHero}>
-                <View style={styles.progressRing}><Text style={styles.progressRingValue}>78<Text style={styles.progressPercent}>%</Text></Text><Text style={styles.progressRingCaption}>accuracy</Text></View>
-                <View style={styles.progressDetails}>
-                  <Text style={styles.progressGood}><Activity size={14} color="#6EE7B7" /> +12% this month</Text>
-                  <Text style={styles.progressDetailText}>You’re building a strong revision rhythm.</Text>
-                  <View style={styles.miniBars}>{[30, 46, 38, 65, 52, 78, 68].map((height, i) => <View key={i} style={styles.miniBarTrack}><LinearGradient colors={i === 5 ? ["#F0ABFC", "#8B5CF6"] : ["#6366F1", "#38BDF8"]} style={[styles.miniBar, { height: height + "%" }]} /></View>)}</View>
-                </View>
-              </View>
-              <View style={styles.progressFooter}><Trophy size={16} color="#FCD34D" /><Text style={styles.progressFooterText}>Consistency badge · 7-day goal achieved</Text></View>
-            </GlassPanel>
-          </View>
-
-          <View style={styles.sectionBlock}>
-            <SectionTitle title="Quick Access" hint="PICK UP THE PACE" />
-            <View style={[styles.quickGrid, !isTablet && styles.quickGridMobile]}>
-              {QUICK_ACTIONS.map(({ label, icon: Icon, colors }) => (
-                <Pressable key={label} style={styles.quickCard} onPress={() => { setActiveNav(label === "Study Notes" ? "Study" : label === "Mock Tests" || label === "Practice Quiz" ? "Tests & Drills" : "Current Affairs"); setNotice(label + " opened in preview mode."); }}>
-                  <LinearGradient colors={[...colors]} style={styles.quickIcon}><Icon size={20} color="#FFFFFF" /></LinearGradient>
-                  <Text style={styles.quickLabel}>{label}</Text>
-                  <ArrowRight size={15} color="#9CA3FF" />
-                </Pressable>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.footer}>
-            <View style={styles.footerBrand}><ShieldCheck size={15} color="#A78BFA" /><Text style={styles.footerText}>CivilPrep · Learn with purpose</Text></View>
-            <Text style={styles.footerNote}>UI foundation preview · Sample metrics, no backend connected</Text>
-          </View>
-        </ScrollView>
-
-        {!isDesktop ? (
-          <View style={styles.bottomNavWrap}>
-            <BlurView intensity={42} tint="dark" style={styles.bottomNav}>
-              {[
-                { label: "Home", icon: Home },
-                { label: "Study", icon: BookOpen },
-                { label: "Practice", icon: BrainCircuit },
-                { label: "Library", icon: Bookmark },
-                { label: "Profile", icon: Users },
-              ].map(({ label, icon: Icon }) => {
-                const selected = (label === "Practice" && activeNav === "Tests & Drills") || (label === "Library" && activeNav === "Notes & Resources") || activeNav === label;
-                return <Pressable key={label} style={styles.bottomNavItem} onPress={() => { setActiveNav(label === "Practice" ? "Tests & Drills" : label === "Library" ? "Notes & Resources" : label); setNotice(label + " section selected."); }}>
-                  <View style={[styles.bottomNavIcon, selected && styles.bottomNavIconActive]}><Icon size={18} color={selected ? "#E9D5FF" : "#8290B2"} /></View>
-                  <Text style={[styles.bottomNavLabel, selected && styles.bottomNavLabelActive]}>{label}</Text>
+                  <View style={styles.atlasRowEnd}><Text style={[styles.atlasPercent, active && styles.atlasPercentActive]}>{subject.progress}%</Text><ChevronRight size={17} color={active ? LIME : MUTED} /></View>
                 </Pressable>;
               })}
-            </BlurView>
+              {filtered.length === 0 ? <View style={styles.noResults}><CircleHelp size={20} color={BLUE} /><Text style={styles.noResultsText}>No territory found. Try Polity, Economy or Science.</Text></View> : null}
+            </View>
           </View>
-        ) : null}
+
+          <View style={styles.briefingHead}>
+            <View><Eyebrow color={BLUE}>03 / THE DAILY BRIEFING</Eyebrow><Text style={styles.sectionHeadline}>The world, distilled.</Text></View>
+            <Text style={styles.briefingDate}>29 OCT  /  THURSDAY</Text>
+          </View>
+          <View style={[styles.briefingLayout, !mid && styles.stack]}>
+            <View style={styles.briefingLead}>
+              <View style={styles.briefingImage}>
+                <LinearGradient colors={["#D9E3FF", "#AAB8F7", "#5667C7"]} style={styles.briefingArt}>
+                  <View style={styles.artSun} /><View style={styles.artOrbitOne} /><View style={styles.artOrbitTwo} />
+                  <Landmark size={mid ? 92 : 68} color="#25347C" strokeWidth={0.8} />
+                  <View style={styles.artLabel}><Text style={styles.artLabelText}>POLICY / 001</Text></View>
+                </LinearGradient>
+              </View>
+              <Eyebrow color={BLUE}>EDITOR'S PICK  /  POLITY</Eyebrow>
+              <Text style={styles.briefingHeadline}>Finance Commission: who gets what, and why?</Text>
+              <Text style={styles.briefingBody}>Understand the constitutional logic behind fiscal transfers, vertical devolution and the questions examiners actually ask.</Text>
+              <Pressable onPress={() => setNotice("Finance Commission briefing opened in preview mode.")} style={styles.textLink}><Text style={styles.textLinkText}>READ THE BRIEFING</Text><ArrowUpRight size={15} color={BLUE} /></Pressable>
+            </View>
+            <View style={styles.briefingRail}>
+              {BRIEFINGS.slice(1).map((item, i) => <Pressable key={item.title} onPress={() => setNotice(item.title + " briefing selected.")} style={styles.briefingItem}>
+                <View style={[styles.briefingColor, { backgroundColor: item.color }]} />
+                <View style={styles.briefingItemContent}><Eyebrow color={item.color}>{item.category} / 0{i + 2}</Eyebrow><Text style={styles.briefingItemTitle}>{item.title}</Text><Text style={styles.briefingItemTime}><Clock3 size={11} color={MUTED} /> {item.time} READ</Text></View>
+                <ArrowUpRight size={16} color={INK} />
+              </Pressable>)}
+              <View style={styles.briefingQuote}><Text style={styles.quoteGlyph}>“</Text><Text style={styles.briefingQuoteText}>Current affairs become powerful when they connect to static concepts.</Text><Eyebrow color={LIME}>THE CIVILPREP METHOD</Eyebrow></View>
+            </View>
+          </View>
+
+          <View style={styles.practiceBand}>
+            <View style={styles.practiceLeft}>
+              <Eyebrow color={LIME}>04 / RETRIEVAL PRACTICE</Eyebrow>
+              <Text style={styles.practiceTitle}>Can you recall it{ "\n" }without looking?</Text>
+              <Text style={styles.practiceCopy}>A quick, low-stakes check to make knowledge stick.</Text>
+            </View>
+            <View style={styles.practiceRight}>
+              <View style={styles.practiceMeta}><View style={styles.practiceIcon}><BrainCircuit size={18} color={LIME} /></View><Eyebrow color="#B5B9AC">DAILY DRILL / POLITY</Eyebrow><Text style={styles.practiceDuration}><Timer size={14} color={LIME} /> 05 QUESTIONS · 04 MIN</Text></View>
+              <Text style={styles.practiceQuestion}>{drillStarted ? "Focus session is active. Ready to test your recall?" : "Which Article establishes the Finance Commission of India?"}</Text>
+              <Action inverted onPress={() => { setDrillStarted(true); setSection("Practice"); setNotice("Daily drill launched in preview mode. Question data is illustrative."); }}><Text style={styles.actionInvertedText}>BEGIN THE DRILL</Text><ArrowRight size={16} color={INK} /></Action>
+            </View>
+            <View style={styles.practiceWatermark}><Text style={styles.practiceWatermarkText}>Q.</Text></View>
+          </View>
+
+          <View style={styles.bottomLine}>
+            <View style={styles.bottomBrand}><View style={styles.bottomBrandMark}><GraduationCap size={16} color={PAPER} /></View><Text style={styles.bottomBrandText}>CIVILPREP <Text style={{ color: MUTED }}>/ LEARN WITH INTENT</Text></Text></View>
+            <Text style={styles.bottomNote}>UI CONCEPT / SAMPLE DATA / BUILD 001</Text>
+          </View>
+        </ScrollView>
+        {!wide ? <View style={styles.mobileDock}>
+          <Pressable onPress={() => setSection("Overview")} style={styles.dockItem}><Compass size={18} color={section === "Overview" ? LIME : "#A9B0A4"} /><Text style={[styles.dockText, section === "Overview" && styles.dockTextActive]}>EXPLORE</Text></Pressable>
+          <Pressable onPress={() => setSection("Learn")} style={styles.dockItem}><BookOpen size={18} color={section === "Learn" ? LIME : "#A9B0A4"} /><Text style={[styles.dockText, section === "Learn" && styles.dockTextActive]}>LEARN</Text></Pressable>
+          <Pressable onPress={() => setSection("Practice")} style={styles.dockCenter}><Zap size={20} color={INK} /><Text style={styles.dockCenterText}>DRILL</Text></Pressable>
+          <Pressable onPress={() => setSection("Briefing")} style={styles.dockItem}><CalendarDays size={18} color={section === "Briefing" ? LIME : "#A9B0A4"} /><Text style={[styles.dockText, section === "Briefing" && styles.dockTextActive]}>BRIEF</Text></Pressable>
+          <Pressable onPress={() => setSection("Progress")} style={styles.dockItem}><Activity size={18} color={section === "Progress" ? LIME : "#A9B0A4"} /><Text style={[styles.dockText, section === "Progress" && styles.dockTextActive]}>GROW</Text></Pressable>
+        </View> : null}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  app: { flex: 1, flexDirection: "row", backgroundColor: "#070B18", minHeight: "100%" },
-  main: { flex: 1, minWidth: 0, backgroundColor: "#070B18" },
-  sidebar: { width: 244, paddingHorizontal: 16, paddingTop: 24, paddingBottom: 18, backgroundColor: "#0A1022", borderRightWidth: 1, borderRightColor: "#1E2B4C" },
-  mobileSidebar: { width: "100%" },
-  brandRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 35, paddingHorizontal: 4 },
-  brandMark: { width: 37, height: 37, borderRadius: 13, alignItems: "center", justifyContent: "center" },
-  brandMarkSmall: { width: 31, height: 31, borderRadius: 11, alignItems: "center", justifyContent: "center" },
-  brandName: { color: "#F8FAFC", fontSize: 21, fontWeight: "800", letterSpacing: -0.7 },
-  brandAccent: { color: "#C084FC" },
-  sidebarEyebrow: { color: "#657493", fontSize: 9, fontWeight: "800", letterSpacing: 1.6, marginHorizontal: 10, marginBottom: 12 },
-  navItem: { minHeight: 43, borderRadius: 12, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 5, borderWidth: 1, borderColor: "transparent" },
-  navItemActive: { backgroundColor: "#39216B", borderColor: "#6D3BA6" },
-  navLabel: { color: "#9AA8C8", fontSize: 12, fontWeight: "600", flex: 1 },
-  navLabelActive: { color: "#F5D0FE", fontWeight: "700" },
-  navDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#E879F9" },
-  sidebarSpacer: { flex: 1, minHeight: 28 },
-  streakCard: { borderRadius: 17, borderWidth: 1, borderColor: "#44326F", padding: 14, marginBottom: 18 },
-  streakTop: { flexDirection: "row", alignItems: "center", gap: 7 },
-  streakDays: { color: "#FDE68A", fontSize: 11, fontWeight: "800" },
-  streakTitle: { color: "#F1F5F9", fontSize: 15, fontWeight: "800", marginTop: 12 },
-  streakSub: { color: "#A7B3D0", fontSize: 10, lineHeight: 15, marginTop: 4 },
-  streakProgress: { height: 4, backgroundColor: "#30375A", borderRadius: 4, marginTop: 12, overflow: "hidden" },
-  streakProgressFill: { width: "76%", height: "100%", backgroundColor: "#C084FC", borderRadius: 4 },
-  profileRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 3, paddingTop: 15, borderTopWidth: 1, borderTopColor: "#1C2948" },
-  avatar: { width: 35, height: 35, borderRadius: 13, alignItems: "center", justifyContent: "center" },
-  avatarText: { color: "#FFFFFF", fontWeight: "900", fontSize: 16 },
-  profileName: { color: "#E2E8F0", fontSize: 11, fontWeight: "700" },
-  profileSub: { color: "#7F8DB0", fontSize: 10, marginTop: 3 },
-  topbar: { height: 70, paddingHorizontal: 26, flexDirection: "row", alignItems: "center", gap: 18, borderBottomWidth: 1, borderBottomColor: "#172340", backgroundColor: "#090E1F" },
-  mobileBrand: { flexDirection: "row", alignItems: "center", gap: 7 },
-  searchBox: { height: 41, flex: 1, maxWidth: 610, borderRadius: 13, borderWidth: 1, borderColor: "#253253", backgroundColor: "#101831", flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 13 },
-  searchBoxMobile: { height: 38, paddingHorizontal: 10 },
-  searchPlaceholder: { color: "#8492B2", fontSize: 11, flex: 1 },
-  shortcut: { color: "#8996B5", fontSize: 10, borderWidth: 1, borderColor: "#34405E", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 5 },
-  topActions: { flexDirection: "row", alignItems: "center", gap: 12 },
-  topStreak: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 11, paddingVertical: 9, borderRadius: 11, backgroundColor: "#231B37", borderWidth: 1, borderColor: "#49305D" },
-  topStreakText: { color: "#FDE68A", fontSize: 10, fontWeight: "800" },
-  iconButton: { width: 38, height: 38, borderRadius: 12, borderWidth: 1, borderColor: "#263252", alignItems: "center", justifyContent: "center", position: "relative" },
-  notificationDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#F472B6", position: "absolute", right: 8, top: 7 },
-  scroll: { flex: 1 },
-  content: { paddingHorizontal: 26, paddingTop: 24, paddingBottom: 32, maxWidth: 1600, width: "100%", alignSelf: "center", gap: 19 },
-  contentCompact: { paddingHorizontal: 15, paddingTop: 15, paddingBottom: 110, gap: 16 },
-  hero: { borderRadius: 24, padding: 28, minHeight: 290, overflow: "hidden", borderWidth: 1, borderColor: "#4B3C82", flexDirection: "row", justifyContent: "space-between", position: "relative" },
-  heroCopy: { flex: 1, maxWidth: 690, zIndex: 2, justifyContent: "center" },
-  heroGlowOne: { position: "absolute", width: 300, height: 300, borderRadius: 150, right: 100, top: -160, backgroundColor: "#7C3AED", opacity: 0.2 },
-  heroGlowTwo: { position: "absolute", width: 220, height: 220, borderRadius: 110, right: -50, bottom: -150, backgroundColor: "#EC4899", opacity: 0.2 },
-  eyebrowPill: { flexDirection: "row", alignItems: "center", gap: 7, alignSelf: "flex-start", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: "#FFFFFF0D", borderWidth: 1, borderColor: "#C4B5FD35", marginBottom: 17 },
-  eyebrowText: { color: "#D8B4FE", fontSize: 9, fontWeight: "800", letterSpacing: 1 },
-  heroWelcome: { color: "#E2E8F0", fontSize: 14, fontWeight: "600", marginBottom: 9 },
-  heroTitle: { color: "#FFFFFF", fontSize: 31, lineHeight: 42, fontWeight: "900", letterSpacing: -0.7 },
-  heroSubtitle: { color: "#B7C1E0", fontSize: 12, marginTop: 10, marginBottom: 20 },
-  heroSearch: { height: 48, maxWidth: 500, borderRadius: 15, paddingLeft: 14, paddingRight: 5, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#FFFFFF12", borderWidth: 1, borderColor: "#D8B4FE44" },
-  heroSearchText: { color: "#D8D8F4", fontSize: 12, flex: 1 },
-  heroSearchButton: { width: 37, height: 37, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#8B5CF6" },
-  heroQuote: { width: 260, alignSelf: "stretch", borderRadius: 19, padding: 17, marginLeft: 20, backgroundColor: "#0B102B75", borderWidth: 1, borderColor: "#C4B5FD30", zIndex: 2 },
-  quoteMark: { width: 31, height: 31, borderRadius: 10, backgroundColor: "#8B5CF633", alignItems: "center", justifyContent: "center", marginBottom: 9 },
-  quoteText: { color: "#F3E8FF", fontSize: 14, lineHeight: 22, fontWeight: "700" },
-  quoteDivider: { height: 1, backgroundColor: "#FFFFFF20", marginVertical: 13 },
-  quoteFeature: { flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 11 },
-  quoteFeatureIcon: { width: 29, height: 29, borderRadius: 9, backgroundColor: "#8B5CF62B", alignItems: "center", justifyContent: "center" },
-  quoteFeatureTitle: { color: "#F3E8FF", fontSize: 11, fontWeight: "800" },
-  quoteFeatureDesc: { color: "#A7B3D0", fontSize: 9, marginTop: 2 },
-  heroOrbs: { position: "absolute", right: 300, top: 10, opacity: 0.55 },
-  orbLarge: { width: 90, height: 90, borderRadius: 45, borderWidth: 1, borderColor: "#C4B5FD45" },
-  orbSmall: { width: 22, height: 22, borderRadius: 11, backgroundColor: "#F0ABFC", opacity: 0.3, position: "absolute", top: 20, left: 50 },
-  noticeRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 4, minHeight: 18 },
-  noticeText: { color: "#91A1C3", fontSize: 10, flex: 1 },
-  metricsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  panel: { backgroundColor: "#0D152B", borderWidth: 1, borderColor: "#253253", borderRadius: 17 },
-  metric: { flexGrow: 1, flexBasis: 145, minHeight: 88, padding: 14, flexDirection: "row", alignItems: "center", gap: 11 },
-  metricIcon: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  metricText: { flex: 1 },
-  metricValue: { color: "#F8FAFC", fontSize: 20, fontWeight: "900", letterSpacing: -0.4 },
-  metricLabel: { color: "#8D9BBB", fontSize: 10, marginTop: 4 },
-  continueWrap: { width: "100%" },
-  continueCard: { padding: 17, flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: "#111831" },
-  continueIcon: { width: 54, height: 54, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  continueInfo: { flex: 1, minWidth: 0 },
-  continueEyebrow: { color: "#A78BFA", fontSize: 9, fontWeight: "800", letterSpacing: 1.1 },
-  continueTitle: { color: "#F8FAFC", fontSize: 15, fontWeight: "800", marginTop: 6 },
-  continueMeta: { color: "#8D9BBB", fontSize: 10, marginTop: 4 },
-  progressTrack: { height: 5, borderRadius: 5, backgroundColor: "#283354", marginTop: 11, overflow: "hidden", maxWidth: 450 },
-  progressFill: { width: "65%", height: "100%", borderRadius: 5, backgroundColor: "#A855F7" },
-  progressLabel: { color: "#8D9BBB", fontSize: 9, marginTop: 5 },
-  playButton: { width: 42, height: 42, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#7C3AED" },
-  sectionBlock: { gap: 14 },
-  sectionHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  sectionTitle: { color: "#F1F5F9", fontSize: 18, fontWeight: "900", letterSpacing: -0.35 },
-  sectionHint: { color: "#A78BFA", fontSize: 9, fontWeight: "800", letterSpacing: 0.7 },
-  subjectSearch: { height: 39, borderRadius: 12, backgroundColor: "#0D152B", borderWidth: 1, borderColor: "#253253", flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 12 },
-  subjectSearchText: { color: "#7F8DB0", fontSize: 11, flex: 1 },
-  subjectSearchInput: { color: "#E2E8F0", fontSize: 11, flex: 1, paddingVertical: 0, outlineStyle: "none" } as any,
-  clearText: { color: "#C4B5FD", fontSize: 10, fontWeight: "700" },
-  subjectGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  subjectGridMobile: { gap: 10 },
-  subjectCard: { flexGrow: 1, flexBasis: 150, minWidth: 0, borderRadius: 17, overflow: "hidden", borderWidth: 1, borderColor: "#2C3A61", backgroundColor: "#0D152B", position: "relative" },
-  subjectCardSelected: { borderColor: "#C084FC", borderWidth: 2 },
-  subjectArtwork: { height: 100, alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" },
-  artworkGlow: { position: "absolute", width: 95, height: 95, borderRadius: 48, backgroundColor: "#FFFFFF", opacity: 0.045, top: -30, right: -20 },
-  artworkOrb: { position: "absolute", width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: "#FFFFFF20", bottom: -24, left: 16 },
-  subjectCardBottom: { paddingHorizontal: 12, paddingVertical: 11, paddingRight: 25 },
-  subjectName: { color: "#F1F5F9", fontSize: 11, lineHeight: 15, fontWeight: "800", minHeight: 30 },
-  subjectCount: { color: "#9AA8C8", fontSize: 9, marginTop: 5 },
-  subjectArrow: { position: "absolute", right: 8, bottom: 11, width: 20, height: 20, borderRadius: 7, backgroundColor: "#8B5CF622", alignItems: "center", justifyContent: "center" },
-  emptyState: { flexGrow: 1, flexBasis: "100%", alignItems: "center", padding: 25, gap: 8 },
-  emptyTitle: { color: "#F1F5F9", fontSize: 14, fontWeight: "800" },
-  emptyCopy: { color: "#9AA8C8", fontSize: 11, textAlign: "center" },
-  smallAction: { marginTop: 5, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 9, backgroundColor: "#6D28D9" },
-  smallActionText: { color: "#FFFFFF", fontSize: 11, fontWeight: "800" },
-  lowerGrid: { flexDirection: "row", gap: 14 },
-  lowerGridMobile: { flexDirection: "column" },
-  dailyCard: { flex: 1.1, padding: 18, gap: 13 },
-  progressCard: { flex: 0.9, padding: 18, gap: 14 },
-  cardIntro: { color: "#8D9BBB", fontSize: 11, marginTop: -5 },
-  taskRow: { flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "#202D4A" },
-  taskCheck: { width: 25, height: 25, borderRadius: 9, borderWidth: 1, borderColor: "#485778", alignItems: "center", justifyContent: "center" },
-  taskCheckDone: { backgroundColor: "#064E3B55", borderColor: "#047857" },
-  taskCheckInner: { width: 7, height: 7, borderRadius: 4, backgroundColor: "#7F8DB0" },
-  taskTitle: { color: "#DDE5F5", fontSize: 11, fontWeight: "700" },
-  taskMeta: { color: "#7F8DB0", fontSize: 9, marginTop: 4 },
-  progressHero: { flexDirection: "row", alignItems: "center", gap: 18 },
-  progressRing: { width: 108, height: 108, borderRadius: 54, borderWidth: 8, borderColor: "#8B5CF6", backgroundColor: "#151B3B", alignItems: "center", justifyContent: "center" },
-  progressRingValue: { color: "#FFFFFF", fontSize: 25, fontWeight: "900" },
-  progressPercent: { color: "#C4B5FD", fontSize: 13 },
-  progressRingCaption: { color: "#9AA8C8", fontSize: 9, marginTop: 1 },
-  progressDetails: { flex: 1 },
-  progressGood: { color: "#6EE7B7", fontSize: 10, fontWeight: "800", flexDirection: "row", alignItems: "center" },
-  progressDetailText: { color: "#9AA8C8", fontSize: 10, lineHeight: 15, marginTop: 7 },
-  miniBars: { height: 42, flexDirection: "row", alignItems: "flex-end", gap: 5, marginTop: 7 },
-  miniBarTrack: { flex: 1, height: "100%", justifyContent: "flex-end", borderRadius: 4, backgroundColor: "#1C2948", overflow: "hidden" },
-  miniBar: { width: "100%", borderRadius: 4 },
-  progressFooter: { flexDirection: "row", alignItems: "center", gap: 8, borderTopWidth: 1, borderTopColor: "#202D4A", paddingTop: 12 },
-  progressFooterText: { color: "#A7B3D0", fontSize: 10 },
-  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  quickGridMobile: { gap: 9 },
-  quickCard: { flexGrow: 1, flexBasis: 180, flexDirection: "row", alignItems: "center", gap: 10, padding: 13, borderRadius: 15, backgroundColor: "#0D152B", borderWidth: 1, borderColor: "#253253" },
-  quickIcon: { width: 39, height: 39, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  quickLabel: { color: "#E2E8F0", fontSize: 11, fontWeight: "800", flex: 1 },
-  footer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: "#172340" },
-  footerBrand: { flexDirection: "row", alignItems: "center", gap: 7 },
-  footerText: { color: "#9AA8C8", fontSize: 10, fontWeight: "700" },
-  footerNote: { color: "#647393", fontSize: 9 },
-  bottomNavWrap: { position: "absolute", left: 12, right: 12, bottom: 10, borderRadius: 20, overflow: "hidden", borderWidth: 1, borderColor: "#B9A5FF35", backgroundColor: "#0A1022D9" },
-  bottomNav: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", paddingHorizontal: 5, paddingTop: 8, paddingBottom: 9, backgroundColor: "#0B1028AA" },
-  bottomNavItem: { flex: 1, alignItems: "center", gap: 3 },
-  bottomNavIcon: { width: 33, height: 28, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  bottomNavIconActive: { backgroundColor: "#7C3AED55" },
-  bottomNavLabel: { color: "#7786A7", fontSize: 9, fontWeight: "600" },
-  bottomNavLabelActive: { color: "#E9D5FF", fontWeight: "800" },
+  root: { flex: 1, flexDirection: "row", backgroundColor: PAPER, minHeight: "100%" },
+  workspace: { flex: 1, minWidth: 0, backgroundColor: PAPER },
+  rail: { width: 188, backgroundColor: "#E8E7DC", borderRightWidth: 1, borderRightColor: RULE, paddingHorizontal: 18, paddingTop: 23, paddingBottom: 20 },
+  railCompact: { width: 70, paddingHorizontal: 10 },
+  brandMark: { width: 43, height: 43, borderRadius: 14, backgroundColor: INK, alignItems: "center", justifyContent: "center", marginBottom: 48 },
+  railItem: { minHeight: 46, flexDirection: "row", alignItems: "center", gap: 11, paddingHorizontal: 9, borderRadius: 9, marginBottom: 6 },
+  railItemActive: { backgroundColor: INK },
+  railIndex: { color: "#8A9085", fontSize: 10, fontWeight: "800", fontVariant: ["tabular-nums"] },
+  railIndexActive: { color: LIME },
+  railLabel: { color: "#737B72", fontSize: 12, fontWeight: "700" },
+  railLabelActive: { color: PAPER },
+  railBottom: { width: 40, height: 40, borderRadius: 13, backgroundColor: LIME, alignItems: "center", justifyContent: "center", alignSelf: "flex-start" },
+  topline: { height: 63, borderBottomWidth: 1, borderBottomColor: RULE, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 27, gap: 14 },
+  toplineRight: { flexDirection: "row", alignItems: "center", gap: 9 },
+  toplineMeta: { color: MUTED, fontSize: 9, letterSpacing: 1.2, fontWeight: "800" },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#3C8555" },
+  searchButton: { height: 33, paddingHorizontal: 11, flexDirection: "row", alignItems: "center", gap: 7, borderWidth: 1, borderColor: "#C8CABC", borderRadius: 7, marginLeft: 10 },
+  searchButtonText: { color: INK, fontSize: 9, fontWeight: "800", letterSpacing: 0.6 },
+  brandInline: { flexDirection: "row", alignItems: "center", gap: 8 },
+  brandMarkSmall: { width: 29, height: 29, borderRadius: 9, backgroundColor: INK, alignItems: "center", justifyContent: "center" },
+  brandWord: { color: INK, fontSize: 12, fontWeight: "900", letterSpacing: 0.3 },
+  mobileNav: { paddingHorizontal: 15, paddingVertical: 10, gap: 8, borderBottomWidth: 1, borderBottomColor: RULE },
+  mobileNavItem: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 5, borderWidth: 1, borderColor: "#D0D0C5" },
+  mobileNavItemActive: { backgroundColor: INK, borderColor: INK },
+  mobileNavText: { color: MUTED, fontSize: 10, fontWeight: "700" },
+  mobileNavTextActive: { color: LIME },
+  page: { paddingHorizontal: 34, paddingTop: 29, paddingBottom: 50, maxWidth: 1500, width: "100%", alignSelf: "center" },
+  pageMobile: { paddingHorizontal: 18, paddingTop: 22, paddingBottom: 112 },
+  masthead: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", gap: 20, paddingBottom: 24 },
+  mastheadTitle: { flex: 1 },
+  eyebrow: { color: MUTED, fontSize: 9, fontWeight: "900", letterSpacing: 1.4, lineHeight: 14 },
+  greeting: { color: INK, fontSize: 22, marginTop: 18, fontWeight: "500", letterSpacing: -0.5 },
+  nameTitle: { color: INK, fontSize: 63, lineHeight: 68, fontWeight: "900", letterSpacing: -3.2 },
+  period: { color: BLUE },
+  intro: { color: "#596157", fontSize: 13, lineHeight: 20, marginTop: 8, maxWidth: 440 },
+  editionStamp: { width: 145, borderLeftWidth: 1, borderLeftColor: "#B9BDB0", paddingLeft: 18, paddingBottom: 4, marginBottom: 4 },
+  stampTop: { color: MUTED, fontSize: 9, fontWeight: "900", letterSpacing: 2 },
+  stampMain: { color: INK, fontSize: 25, lineHeight: 26, fontWeight: "900", letterSpacing: -0.8 },
+  stampDate: { color: MUTED, fontSize: 9, fontWeight: "800", letterSpacing: 1 },
+  statusLine: { minHeight: 37, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 7 },
+  statusMark: { width: 23, height: 23, borderRadius: 7, backgroundColor: LIME, alignItems: "center", justifyContent: "center" },
+  statusText: { color: "#596157", fontSize: 10, flex: 1 },
+  statusRight: { color: MUTED, fontSize: 8, fontWeight: "900", letterSpacing: 0.6 },
+  rule: { height: 1, backgroundColor: RULE, width: "100%" },
+  leadGrid: { flexDirection: "row", gap: 24, paddingVertical: 27 },
+  stack: { flexDirection: "column" },
+  leadStory: { flex: 1.35, minWidth: 0, paddingVertical: 6, paddingRight: 10 },
+  storyMeta: { flexDirection: "row", alignItems: "center", gap: 10 },
+  metaDash: { width: 25, height: 1, backgroundColor: RULE },
+  leadHeadline: { color: INK, fontSize: 44, lineHeight: 48, letterSpacing: -2.1, fontWeight: "900", marginTop: 19 },
+  leadBody: { color: "#596157", fontSize: 13, lineHeight: 21, maxWidth: 410, marginTop: 12, marginBottom: 21 },
+  action: { alignSelf: "flex-start", minHeight: 43, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 6, backgroundColor: BLUE, flexDirection: "row", alignItems: "center", gap: 16 },
+  actionInverted: { backgroundColor: LIME },
+  actionText: { color: PAPER, fontSize: 9, fontWeight: "900", letterSpacing: 0.7 },
+  actionInvertedText: { color: INK, fontSize: 9, fontWeight: "900", letterSpacing: 0.7 },
+  focusPanel: { flex: 0.85, minWidth: 245, backgroundColor: INK, padding: 21, position: "relative", overflow: "hidden" },
+  focusTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  focusNumber: { color: PAPER, fontSize: 56, lineHeight: 65, fontWeight: "900", letterSpacing: -2.2, marginTop: 14 },
+  focusUnit: { color: LIME, fontSize: 20, letterSpacing: -0.4 },
+  focusDescription: { color: "#B7BCAF", fontSize: 11, lineHeight: 17, maxWidth: 260 },
+  focusTrack: { height: 5, backgroundColor: "#3A443C", marginTop: 20, overflow: "hidden" },
+  focusTrackFill: { height: "100%", width: "58%", backgroundColor: LIME },
+  focusBottom: { flexDirection: "row", justifyContent: "space-between", marginTop: 8 },
+  focusSmall: { color: "#A3AB9C", fontSize: 8, fontWeight: "800", letterSpacing: 0.6 },
+  focusPlay: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: LIME, paddingHorizontal: 12, paddingVertical: 11, marginTop: 19 },
+  focusPlayText: { color: INK, fontSize: 9, fontWeight: "900", letterSpacing: 0.5 },
+  metricsStrip: { flexDirection: "row", alignItems: "stretch", paddingVertical: 18, borderTopWidth: 1, borderBottomWidth: 1, borderColor: RULE, gap: 17 },
+  metricCell: { flex: 1, minWidth: 0, gap: 5 },
+  metricDivider: { width: 1, height: 55, alignSelf: "center" },
+  metricBig: { color: INK, fontSize: 28, lineHeight: 32, fontWeight: "900", letterSpacing: -1.1 },
+  metricSuffix: { fontSize: 12, color: MUTED, fontWeight: "700", letterSpacing: 0 },
+  metricNote: { color: MUTED, fontSize: 9, flexDirection: "row", alignItems: "center", gap: 4 },
+  sectionHeader: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: 15, paddingTop: 36, paddingBottom: 17 },
+  sectionHeadline: { color: INK, fontSize: 27, fontWeight: "900", letterSpacing: -1.2, marginTop: 5 },
+  filterBox: { width: 210, height: 38, borderBottomWidth: 1, borderBottomColor: "#AEB4A5", flexDirection: "row", alignItems: "center", gap: 8 },
+  filterInput: { color: INK, fontSize: 11, flex: 1, paddingVertical: 5, outlineStyle: "none" } as any,
+  atlasLayout: { flexDirection: "row", borderTopWidth: 1, borderBottomWidth: 1, borderColor: RULE, minHeight: 260 },
+  atlasIndex: { width: 185, padding: 18, borderRightWidth: 1, borderRightColor: RULE, justifyContent: "space-between" },
+  atlasIndexBig: { color: BLUE, fontSize: 40, fontWeight: "900", letterSpacing: -2 },
+  atlasIndexText: { color: INK, fontSize: 17, lineHeight: 20, fontWeight: "900", letterSpacing: -0.5, marginVertical: 13 },
+  atlasCompass: { alignSelf: "flex-start", position: "relative", marginVertical: 9 },
+  compassCenter: { position: "absolute", width: 5, height: 5, borderRadius: 3, backgroundColor: LIME, top: 17, left: 17 },
+  atlasList: { flex: 1, minWidth: 0 },
+  atlasRow: { flexDirection: "row", alignItems: "center", gap: 13, minHeight: 91, paddingHorizontal: 15, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: RULE },
+  atlasRowActive: { backgroundColor: INK },
+  atlasNumber: { color: "#9CA296", fontSize: 11, fontWeight: "900", alignSelf: "flex-start", marginTop: 4 },
+  atlasNumberActive: { color: LIME },
+  atlasRowMain: { flex: 1, minWidth: 0 },
+  atlasTitle: { color: INK, fontSize: 16, lineHeight: 20, fontWeight: "800", letterSpacing: -0.3, marginTop: 2 },
+  atlasTitleActive: { color: PAPER },
+  atlasCount: { color: MUTED, fontSize: 9, marginTop: 4 },
+  atlasCountActive: { color: "#B7BCAF" },
+  atlasProgress: { height: 2, backgroundColor: "#D4D7CC", marginTop: 9, maxWidth: 290 },
+  atlasProgressActive: { backgroundColor: "#39443B" },
+  atlasProgressFill: { height: "100%", backgroundColor: BLUE },
+  atlasProgressFillActive: { backgroundColor: LIME },
+  atlasRowEnd: { alignItems: "flex-end", gap: 7 },
+  atlasPercent: { color: MUTED, fontSize: 10, fontWeight: "800" },
+  atlasPercentActive: { color: LIME },
+  noResults: { padding: 25, flexDirection: "row", gap: 10, alignItems: "center" },
+  noResultsText: { color: MUTED, fontSize: 11, flex: 1 },
+  briefingHead: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: 12, paddingTop: 37, paddingBottom: 17 },
+  briefingDate: { color: MUTED, fontSize: 9, fontWeight: "800", letterSpacing: 1 },
+  briefingLayout: { flexDirection: "row", gap: 25, paddingBottom: 36 },
+  briefingLead: { flex: 1.15, minWidth: 0 },
+  briefingImage: { height: 175, overflow: "hidden", marginBottom: 15 },
+  briefingArt: { flex: 1, alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" },
+  artSun: { position: "absolute", width: 100, height: 100, borderRadius: 50, backgroundColor: "#E6F3A4", top: -15, right: 30, opacity: 0.9 },
+  artOrbitOne: { position: "absolute", width: 250, height: 100, borderRadius: 125, borderWidth: 1, borderColor: "#FFFFFF85", transform: [{ rotate: "-22deg" }] },
+  artOrbitTwo: { position: "absolute", width: 300, height: 130, borderRadius: 150, borderWidth: 1, borderColor: "#FFFFFF60", transform: [{ rotate: "18deg" }] },
+  artLabel: { position: "absolute", left: 13, bottom: 12, backgroundColor: PAPER, paddingHorizontal: 8, paddingVertical: 5 },
+  artLabelText: { color: INK, fontSize: 8, fontWeight: "900", letterSpacing: 1 },
+  briefingHeadline: { color: INK, fontSize: 23, lineHeight: 27, letterSpacing: -0.8, fontWeight: "900", marginTop: 8, maxWidth: 490 },
+  briefingBody: { color: "#596157", fontSize: 11, lineHeight: 18, marginTop: 8, maxWidth: 500 },
+  textLink: { flexDirection: "row", alignItems: "center", gap: 7, marginTop: 14, alignSelf: "flex-start" },
+  textLinkText: { color: BLUE, fontSize: 9, fontWeight: "900", letterSpacing: 0.8 },
+  briefingRail: { flex: 0.9, minWidth: 0, borderTopWidth: 1, borderTopColor: RULE },
+  briefingItem: { flexDirection: "row", alignItems: "flex-start", gap: 12, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: RULE },
+  briefingColor: { width: 4, height: 54 },
+  briefingItemContent: { flex: 1, gap: 6 },
+  briefingItemTitle: { color: INK, fontSize: 15, lineHeight: 19, fontWeight: "800", letterSpacing: -0.3 },
+  briefingItemTime: { color: MUTED, fontSize: 9, flexDirection: "row", alignItems: "center", gap: 4 },
+  briefingQuote: { backgroundColor: INK, padding: 17, marginTop: 15 },
+  quoteGlyph: { color: LIME, fontSize: 34, lineHeight: 35, fontWeight: "900" },
+  briefingQuoteText: { color: PAPER, fontSize: 14, lineHeight: 20, fontWeight: "700", marginBottom: 13 },
+  practiceBand: { backgroundColor: INK, padding: 24, flexDirection: "row", alignItems: "center", gap: 24, position: "relative", overflow: "hidden", marginBottom: 30 },
+  practiceLeft: { flex: 1, minWidth: 0, zIndex: 1 },
+  practiceTitle: { color: PAPER, fontSize: 30, lineHeight: 34, letterSpacing: -1.2, fontWeight: "900", marginTop: 10 },
+  practiceCopy: { color: "#B7BCAF", fontSize: 11, lineHeight: 17, marginTop: 9, maxWidth: 270 },
+  practiceRight: { flex: 1, minWidth: 0, zIndex: 1 },
+  practiceMeta: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 9 },
+  practiceIcon: { width: 32, height: 32, borderRadius: 9, backgroundColor: "#FFFFFF12", alignItems: "center", justifyContent: "center" },
+  practiceDuration: { color: "#B7BCAF", fontSize: 9, flexDirection: "row", alignItems: "center", gap: 4 },
+  practiceQuestion: { color: PAPER, fontSize: 16, lineHeight: 22, fontWeight: "700", marginTop: 15, marginBottom: 16 },
+  practiceWatermark: { position: "absolute", right: 10, bottom: -50, opacity: 0.05 },
+  practiceWatermarkText: { color: PAPER, fontSize: 190, fontWeight: "900" },
+  bottomLine: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12, paddingTop: 17, borderTopWidth: 1, borderTopColor: RULE },
+  bottomBrand: { flexDirection: "row", alignItems: "center", gap: 8 },
+  bottomBrandMark: { width: 26, height: 26, borderRadius: 8, backgroundColor: INK, alignItems: "center", justifyContent: "center" },
+  bottomBrandText: { color: INK, fontSize: 9, fontWeight: "900", letterSpacing: 0.6 },
+  bottomNote: { color: MUTED, fontSize: 8, fontWeight: "800", letterSpacing: 0.7 },
+  mobileDock: { position: "absolute", left: 12, right: 12, bottom: 10, minHeight: 63, backgroundColor: INK, flexDirection: "row", alignItems: "center", justifyContent: "space-around", paddingHorizontal: 6, paddingVertical: 8, borderRadius: 15, borderWidth: 1, borderColor: "#495147" },
+  dockItem: { flex: 1, alignItems: "center", justifyContent: "center", gap: 4 },
+  dockText: { color: "#A9B0A4", fontSize: 7, fontWeight: "900", letterSpacing: 0.7 },
+  dockTextActive: { color: LIME },
+  dockCenter: { width: 54, height: 48, alignItems: "center", justifyContent: "center", backgroundColor: LIME, borderRadius: 12, gap: 2 },
+  dockCenterText: { color: INK, fontSize: 7, fontWeight: "900", letterSpacing: 0.8 },
 });
