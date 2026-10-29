@@ -159,6 +159,14 @@ export function CognitiveHeroArtwork() {
 }
 
 const styles = StyleSheet.create({
+  subjectArt: {
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: VISUAL_TOKENS.color.ink,
+    borderWidth: 1,
+    borderColor: "rgba(169,155,255,0.24)",
+  },
   frame: {
     width: "100%",
     height: 178,
@@ -166,7 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 16,
     marginBottom: 16,
-    backgroundColor: VISUAL_TOKENS.ink,
+    backgroundColor: VISUAL_TOKENS.color.ink,
     borderWidth: 1,
     borderColor: "rgba(169,155,255,0.28)",
   },
