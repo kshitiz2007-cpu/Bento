@@ -18,6 +18,70 @@ export const VISUAL_TOKENS = {
   muted: "#91A097",
 } as const;
 
+export type SubjectArtVariant = "polity" | "history" | "geography" | "science" | "economy" | "current";
+
+const ART_COLORS: Record<SubjectArtVariant, [string, string, string]> = {
+  polity: ["#A99BFF", "#F5A5C8", "#C6F36A"],
+  history: ["#E9B878", "#E78C72", "#F4D7A1"],
+  geography: ["#8AE8E0", "#6AC39B", "#C6F36A"],
+  science: ["#8AE8E0", "#A99BFF", "#F5A5C8"],
+  economy: ["#F7C66A", "#F18F78", "#A99BFF"],
+  current: ["#F5A5C8", "#A99BFF", "#8AE8E0"],
+};
+
+/** Compact, reusable vector motif for subject rows and cards. */
+export function SubjectArtwork({ variant, size = 52 }: { variant: SubjectArtVariant; size?: number }) {
+  const [a, b, c] = ART_COLORS[variant];
+  return (
+    <View accessible={false} style={[styles.subjectArt, { width: size, height: size, borderRadius: size * 0.27 }]}>
+      <Svg width="100%" height="100%" viewBox="0 0 64 64">
+        <Defs>
+          <LinearGradient id={`art-${variant}`} x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={a} />
+            <Stop offset="1" stopColor={b} />
+          </LinearGradient>
+          <RadialGradient id={`art-glow-${variant}`} cx="50%" cy="40%" rx="65%" ry="65%">
+            <Stop offset="0" stopColor={a} stopOpacity="0.32" />
+            <Stop offset="1" stopColor={b} stopOpacity="0" />
+          </RadialGradient>
+        </Defs>
+        <Path d="M0 0H64V64H0Z" fill="#172A27" />
+        <Path d="M0 0H64V64H0Z" fill={`url(#art-glow-${variant})`} />
+        {variant === "polity" ? <>
+          <Path d="M13 26L32 13L51 26V48H13Z" fill="none" stroke={`url(#art-${variant})`} strokeWidth="1.8" />
+          <Path d="M9 51H55M20 30V46M29 30V46M38 30V46M47 30V46" stroke={c} strokeWidth="1.7" />
+          <Circle cx="32" cy="13" r="3" fill={b} />
+        </> : null}
+        {variant === "history" ? <>
+          <Path d="M12 50V27L32 14L52 27V50ZM20 50V31H44V50M27 50V36H37V50" fill="none" stroke={`url(#art-${variant})`} strokeWidth="1.8" />
+          <Path d="M8 54H56" stroke={c} strokeWidth="2" />
+          <Circle cx="32" cy="14" r="2.5" fill={b} />
+        </> : null}
+        {variant === "geography" ? <>
+          <Path d="M-4 20C9 5 22 34 35 19S55 8 68 18M-4 31C9 16 22 45 35 30S55 19 68 29M-4 42C9 27 22 56 35 41S55 30 68 40M-4 53C9 38 22 67 35 52S55 41 68 51" fill="none" stroke={`url(#art-${variant})`} strokeWidth="1.7" />
+          <Circle cx="42" cy="22" r="4" fill={c} />
+        </> : null}
+        {variant === "science" ? <>
+          <Ellipse cx="32" cy="32" rx="23" ry="9" transform="rotate(-35 32 32)" fill="none" stroke={`url(#art-${variant})`} strokeWidth="1.6" />
+          <Ellipse cx="32" cy="32" rx="23" ry="9" transform="rotate(35 32 32)" fill="none" stroke={b} strokeWidth="1.4" />
+          <Circle cx="32" cy="32" r="5" fill={a} /><Circle cx="50" cy="19" r="3" fill={c} />
+        </> : null}
+        {variant === "economy" ? <>
+          <Path d="M10 48L21 38L30 42L43 24L54 29" fill="none" stroke={`url(#art-${variant})`} strokeWidth="2.4" />
+          <Path d="M10 48L21 38L30 42L43 24L54 29V53H10Z" fill={b} opacity="0.18" />
+          {[ [10,48], [21,38], [30,42], [43,24], [54,29] ].map(([x,y],i) => <Circle key={i} cx={x} cy={y} r="2.5" fill={i === 4 ? c : a} />)}
+        </> : null}
+        {variant === "current" ? <>
+          <Circle cx="32" cy="32" r="21" fill="none" stroke={`url(#art-${variant})`} strokeWidth="1.5" strokeDasharray="3 4" />
+          <Circle cx="32" cy="32" r="12" fill="none" stroke={b} strokeWidth="1.6" />
+          <Path d="M32 11V24M32 40V53M11 32H24M40 32H53" stroke={c} strokeWidth="1.5" />
+          <Circle cx="32" cy="32" r="4" fill={a} />
+        </> : null}
+      </Svg>
+    </View>
+  );
+}
+
 export function CognitiveHeroArtwork() {
   return (
     <View accessible={false} style={styles.frame}>
