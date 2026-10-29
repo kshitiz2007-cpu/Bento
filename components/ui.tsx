@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
+import Animated, { cancelAnimation, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { ChevronRight } from "lucide-react-native";
 
@@ -16,7 +18,19 @@ export function BentoCard({ children, className = "" }: { children: ReactNode; c
   return <View className={`rounded-[26px] border border-white/[0.07] bg-panel p-4 ${className}`}>{children}</View>;
 }
 export function ProgressBar({ value, color = "#B9A6FF" }: { value: number; color?: string }) {
-  return <View className="h-[5px] overflow-hidden rounded-full bg-white/10"><View style={{ width: `${Math.max(0, Math.min(value, 100))}%`, backgroundColor: color }} className="h-full rounded-full" /></View>;
+  const reducedMotion = useReducedMotion();
+  const progress = useSharedValue(0);
+  useEffect(() => {
+    const target = Math.max(0, Math.min(value, 100));
+    if (reducedMotion) {
+      progress.value = target;
+      return;
+    }
+    progress.value = withTiming(target, { duration: 650 });
+    return () => cancelAnimation(progress);
+  }, [value, reducedMotion, progress]);
+  const animatedStyle = useAnimatedStyle(() => ({ width: `${progress.value}%`, backgroundColor: color }));
+  return <View className="h-[5px] overflow-hidden rounded-full bg-white/10"><Animated.View style={animatedStyle} className="h-full rounded-full" /></View>;
 }
 export function GradientButton({ label, onPress }: { label: string; onPress?: () => void }) {
   return <Pressable onPress={onPress} accessibilityRole="button"><LinearGradient colors={["#E8D39D", "#C4A6EE"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} className="items-center rounded-2xl px-4 py-3"><Text className="text-sm font-bold text-[#10121C]">{label}</Text></LinearGradient></Pressable>;
