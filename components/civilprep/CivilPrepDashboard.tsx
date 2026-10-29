@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -267,13 +268,13 @@ export function CivilPrepDashboard() {
             <SectionTitle title="Explore by Subject" hint="BROWSE LIBRARY  →" />
             <View style={styles.subjectSearch}>
               <Search size={15} color="#7F8DB0" />
-              <Text style={styles.subjectSearchText}>{query || "Filter subjects by name…"}</Text>
+              <TextInput value={query} onChangeText={setQuery} placeholder="Filter subjects by name…" placeholderTextColor="#7F8DB0" autoCapitalize="none" style={styles.subjectSearchInput} accessibilityLabel="Filter subjects by name" />
               {query ? <Pressable onPress={() => setQuery("")}><Text style={styles.clearText}>Clear</Text></Pressable> : null}
             </View>
             <View style={[styles.subjectGrid, !isTablet && styles.subjectGridMobile]}>
               {filteredSubjects.map(({ name, count, icon: Icon, colors }) => (
-                <Pressable key={name} style={[styles.subjectCard, activeSubject === name && styles.subjectCardSelected]} onPress={() => { setActiveSubject(name); setNotice(name + " selected. Subject resources are sample data in this UI milestone."); }}>
-                  <LinearGradient colors={[...colors]} style={styles.subjectArtwork}>
+                <Pressable key={name} style={[styles.subjectCard, { maxWidth: isDesktop ? "32%" : "48%", flexBasis: isDesktop ? 150 : "46%" }, activeSubject === name && styles.subjectCardSelected]} onPress={() => { setActiveSubject(name); setNotice(name + " selected. Subject resources are sample data in this UI milestone."); }}>
+                  <LinearGradient colors={colors} style={styles.subjectArtwork}>
                     <View style={styles.artworkGlow} />
                     <Icon size={isDesktop ? 32 : 27} color="#E0E7FF" strokeWidth={1.5} />
                     <View style={styles.artworkOrb} />
@@ -461,10 +462,11 @@ const styles = StyleSheet.create({
   sectionHint: { color: "#A78BFA", fontSize: 9, fontWeight: "800", letterSpacing: 0.7 },
   subjectSearch: { height: 39, borderRadius: 12, backgroundColor: "#0D152B", borderWidth: 1, borderColor: "#253253", flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 12 },
   subjectSearchText: { color: "#7F8DB0", fontSize: 11, flex: 1 },
+  subjectSearchInput: { color: "#E2E8F0", fontSize: 11, flex: 1, paddingVertical: 0, outlineStyle: "none" } as any,
   clearText: { color: "#C4B5FD", fontSize: 10, fontWeight: "700" },
   subjectGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   subjectGridMobile: { gap: 10 },
-  subjectCard: { flexGrow: 1, flexBasis: 150, minWidth: 0, maxWidth: "32%", borderRadius: 17, overflow: "hidden", borderWidth: 1, borderColor: "#2C3A61", backgroundColor: "#0D152B", position: "relative" },
+  subjectCard: { flexGrow: 1, flexBasis: 150, minWidth: 0, borderRadius: 17, overflow: "hidden", borderWidth: 1, borderColor: "#2C3A61", backgroundColor: "#0D152B", position: "relative" },
   subjectCardSelected: { borderColor: "#C084FC", borderWidth: 2 },
   subjectArtwork: { height: 100, alignItems: "center", justifyContent: "center", overflow: "hidden", position: "relative" },
   artworkGlow: { position: "absolute", width: 95, height: 95, borderRadius: 48, backgroundColor: "#FFFFFF", opacity: 0.045, top: -30, right: -20 },
