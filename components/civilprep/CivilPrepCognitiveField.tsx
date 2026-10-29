@@ -219,7 +219,7 @@ export function CivilPrepCognitiveField() {
             {showSummary ? <View style={s.summaryPanel}><View style={s.summaryIcon}><Check size={24} color={C.ink} /></View><Eyebrow>SESSION SUMMARY</Eyebrow><Text style={s.summaryScore}>{score} / {QUESTIONS.length}</Text><Text style={s.topicDescription}>Correct answers in this sample session.</Text><Action onPress={() => { setAnswers({}); setSubmitted({}); setQuestionIndex(0); setShowSummary(false); }}><Text style={s.actionText}>TRY AGAIN</Text><ArrowRight size={16} color={C.ink} /></Action><Action secondary onPress={() => setScreen("field")}><Text style={s.actionSecondaryText}>RETURN TO FIELD</Text></Action></View> : <View style={[s.recallLayout, desktop && s.recallLayoutDesktop]}>
               <View style={s.questionPanel}>
                 <View style={s.questionTop}><Eyebrow>QUESTION {String(questionIndex + 1).padStart(2, "0")} / {String(QUESTIONS.length).padStart(2, "0")}</Eyebrow><Text style={s.questionTag}>UNTIMED PRACTICE</Text></View>
-                <View style={s.progressTrack}><View style={[s.progressFill, { width: ((questionIndex + 1) / QUESTIONS.length * 100) + "%" }]} /></View>
+                <View style={s.progressTrack}><View style={[s.progressFill, { width: `${((questionIndex + 1) / QUESTIONS.length) * 100}%` as `${number}%` }]} /></View>
                 <Text style={s.questionPrompt}>{question.prompt}</Text>
                 <View style={s.options}>{question.options.map((option, i) => {
                   const isChosen = answers[questionIndex] === i;
