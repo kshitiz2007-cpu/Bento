@@ -3,6 +3,7 @@ import {
   Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View,
 } from "react-native";
 import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
+import { CognitiveHeroArtwork } from "@/components/civilprep/CivilPrepVisualSystem";
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, Check, ChevronRight, Compass,
   Network, Search, Sparkles, Target, X,
@@ -149,6 +150,7 @@ export function CivilPrepCognitiveField() {
                 <Eyebrow>YOUR NEXT STEP / DAILY MISSION</Eyebrow>
                 <Text style={s.heroTitle}>Make sense.{ "\n" }Then make progress.</Text>
                 <Text style={s.heroBody}>A focused path through the syllabus, with the wider knowledge field always one step away.</Text>
+                <CognitiveHeroArtwork />
                 <View style={s.mission}>
                   <View style={s.missionHead}><Eyebrow light>RECOMMENDED MISSION</Eyebrow><Target size={18} color={C.lime} /></View>
                   <Text style={s.missionTitle}>Fundamental Rights</Text>
