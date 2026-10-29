@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Component, useState } from "react";
 import {
   ScrollView,
   StatusBar,
@@ -32,7 +32,7 @@ import {
   UserRound,
   Zap,
 } from "lucide-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { theme, shadow } from "./src/theme";
 
@@ -115,7 +115,7 @@ function QuickAction({
   );
 }
 
-export default function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>("Home");
   const { width } = useWindowDimensions();
   const compact = width < 375;
@@ -294,6 +294,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  errorScreen: { flex: 1, backgroundColor: "#F6F6FA", padding: 24, justifyContent: "center", gap: 12 },
+  errorEyebrow: { color: "#F53B85", fontSize: 11, fontWeight: "800", letterSpacing: 1.1 },
+  errorTitle: { color: "#131726", fontSize: 24, fontWeight: "800" },
+  errorMessage: { color: "#9B174D", fontSize: 14, lineHeight: 21, fontWeight: "600" },
+  errorHint: { color: "#686D7E", fontSize: 12, lineHeight: 18 },
   safeArea: { flex: 1, backgroundColor: theme.color.canvas },
   root: { flex: 1, backgroundColor: theme.color.canvas },
   scrollContent: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 130, gap: 24 },
@@ -375,3 +380,42 @@ const styles = StyleSheet.create({
   navLabel: { color: theme.color.muted, fontSize: 9, fontWeight: "600" },
   navLabelActive: { color: theme.color.rose, fontWeight: "800" },
 });
+
+class AppErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("CivilPrep UI render error:", error);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={styles.errorScreen}>
+          <Text style={styles.errorEyebrow}>CIVILPREP • STARTUP DIAGNOSTIC</Text>
+          <Text style={styles.errorTitle}>The screen hit a rendering error.</Text>
+          <Text style={styles.errorMessage}>{this.state.error.message || "Unknown rendering error"}</Text>
+          <Text style={styles.errorHint}>Please share this message so the exact cause can be fixed.</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function App() {
+  return (
+    <AppErrorBoundary>
+      <SafeAreaProvider>
+        <AppContent />
+      </SafeAreaProvider>
+    </AppErrorBoundary>
+  );
+}
