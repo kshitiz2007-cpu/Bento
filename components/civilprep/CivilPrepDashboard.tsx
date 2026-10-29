@@ -73,7 +73,7 @@ export function CivilPrepDashboard() {
       {wide ? nav : null}
       <View style={styles.workspace}>
         <View style={styles.topline}>
-          {!wide ? <View style={styles.brandInline}><View style={styles.brandMarkSmall}><GraduationCap size={17} color={PAPER} /></View><Text style={styles.brandWord}>CIVILPREP<span> / FIELDWORK</span></Text></View> : <Eyebrow> CIVILPREP / FIELDWORK — VOL. 01 </Eyebrow>}
+          {!wide ? <View style={styles.brandInline}><View style={styles.brandMarkSmall}><GraduationCap size={17} color={PAPER} /></View><Text style={styles.brandWord}>CIVILPREP / FIELDWORK</Text></View> : <Eyebrow> CIVILPREP / FIELDWORK — VOL. 01 </Eyebrow>}
           <View style={styles.toplineRight}>
             <View style={styles.liveDot} /><Text style={styles.toplineMeta}>YOUR STUDY SYSTEM</Text>
             <Pressable onPress={() => setNotice("Search is ready — filter the learning atlas below.")} style={styles.searchButton}><Search size={16} color={INK} /><Text style={styles.searchButtonText}>SEARCH</Text></Pressable>
