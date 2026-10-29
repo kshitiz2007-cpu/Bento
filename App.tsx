@@ -1,421 +1,225 @@
 import React, { Component, useState } from "react";
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  useWindowDimensions,
+  Pressable, ScrollView, StatusBar, StyleSheet, Text, View, useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  Check,
-  ChevronRight,
-  CircleHelp,
-  Flame,
-  GraduationCap,
-  House,
-  Library,
-  Menu,
-  Newspaper,
-  Play,
-  Plus,
-  Sparkles,
-  Target,
-  Timer,
-  Trophy,
-  UserRound,
-  Zap,
-} from "lucide-react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { theme, shadow } from "./src/theme";
+import {
+  ArrowRight, ArrowUpRight, BookOpen, Check, ChevronRight, Flame, GraduationCap,
+  House, Library, Newspaper, Play, Sparkles, Target, Timer, Trophy, UserRound, Zap,
+} from "lucide-react-native";
 
 type Tab = "Home" | "Study" | "Practice" | "Library" | "Profile";
-
 const tabs: { label: Tab; icon: typeof House }[] = [
-  { label: "Home", icon: House },
-  { label: "Study", icon: BookOpen },
-  { label: "Practice", icon: Target },
-  { label: "Library", icon: Library },
+  { label: "Home", icon: House }, { label: "Study", icon: BookOpen },
+  { label: "Practice", icon: Target }, { label: "Library", icon: Library },
   { label: "Profile", icon: UserRound },
 ];
+const C = {
+  bg: "#090B16", surface: "#15182B", surface2: "#1D2038", ink: "#F7F5FF",
+  muted: "#A1A4BE", faint: "#737891", rose: "#FF5CA8", lime: "#D8FF6A",
+  violet: "#9A7BFF", border: "#2D304A", purpleSoft: "#E8E1FF",
+  roseSoft: "#FFD8E8",
+};
 
-function Eyebrow({ children, color = theme.color.rose }: { children: React.ReactNode; color?: string }) {
-  return <Text style={[styles.eyebrow, { color }]}>{children}</Text>;
+function Label({ children, color = C.rose }: { children: React.ReactNode; color?: string }) {
+  return <Text style={[s.eyebrow, { color }]}>{children}</Text>;
 }
-
-function SectionTitle({ title, action }: { title: string; action?: string }) {
-  return (
-    <View style={styles.sectionTitleRow}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {action ? (
-        <Pressable accessibilityRole="button" style={styles.inlineAction}>
-          <Text style={styles.inlineActionText}>{action}</Text>
-          <ArrowUpRight size={14} color={theme.color.violet} />
-        </Pressable>
-      ) : null}
-    </View>
-  );
+function SectionHeading({ title, action }: { title: string; action?: string }) {
+  return <View style={s.sectionHeading}>
+    <Text style={s.sectionTitle}>{title}</Text>
+    {action ? <Pressable style={s.actionRow}><Text style={s.actionText}>{action}</Text><ArrowUpRight size={14} color={C.violet} /></Pressable> : null}
+  </View>;
 }
-
-function StatCard({
-  value,
-  label,
-  icon: Icon,
-  accent = "default",
-}: {
-  value: string;
-  label: string;
-  icon: typeof Timer;
-  accent?: "default" | "rose";
-}) {
-  const isRose = accent === "rose";
-  return (
-    <View style={[styles.statCard, isRose && styles.statCardRose]}>
-      <View style={styles.statTop}>
-        <Icon size={15} color={isRose ? theme.color.rose : theme.color.muted} strokeWidth={2.1} />
-        {isRose ? <View style={styles.statDot} /> : null}
-      </View>
-      <Text style={[styles.statValue, isRose && { color: theme.color.rose }]}>{value}</Text>
-      <Text style={[styles.statLabel, isRose && { color: theme.color.rose }]}>{label}</Text>
-    </View>
-  );
+function Stat({ icon: Icon, value, label, accent = false }: { icon: typeof Timer; value: string; label: string; accent?: boolean }) {
+  return <View style={[s.statCard, accent && s.statAccent]}>
+    <Icon size={15} color={accent ? C.lime : C.muted} strokeWidth={2.2} />
+    <Text style={[s.statValue, accent && { color: C.lime }]}>{value}</Text>
+    <Text style={s.statLabel}>{label}</Text>
+  </View>;
 }
-
-function QuickAction({
-  title,
-  subtitle,
-  icon: Icon,
-  tint,
-  ink,
-}: {
-  title: string;
-  subtitle: string;
-  icon: typeof Sparkles;
-  tint: string;
-  ink: string;
-}) {
-  return (
-    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.quickCard, pressed && styles.pressed]}>
-      <View style={[styles.quickIcon, { backgroundColor: tint }]}>
-        <Icon size={19} color={ink} strokeWidth={2.2} />
-      </View>
-      <View style={styles.quickText}>
-        <Text style={styles.quickTitle}>{title}</Text>
-        <Text style={styles.quickSubtitle}>{subtitle}</Text>
-      </View>
-      <ChevronRight size={17} color={theme.color.muted} />
-    </Pressable>
-  );
+function QuickRow({ icon: Icon, title, subtitle, tint, ink }: { icon: typeof BookOpen; title: string; subtitle: string; tint: string; ink: string }) {
+  return <Pressable style={({ pressed }) => [s.quickRow, pressed && s.pressed]}>
+    <View style={[s.quickIcon, { backgroundColor: tint }]}><Icon size={19} color={ink} /></View>
+    <View style={s.quickCopy}><Text style={s.quickTitle}>{title}</Text><Text style={s.quickSubtitle}>{subtitle}</Text></View>
+    <ChevronRight size={17} color={C.faint} />
+  </Pressable>;
 }
-
 function AppContent() {
   const [activeTab, setActiveTab] = useState<Tab>("Home");
   const { width } = useWindowDimensions();
-  const compact = width < 375;
+  const compact = width < 370;
+  return <SafeAreaView style={s.safe}>
+    <ExpoStatusBar style="light" />
+    <StatusBar barStyle="light-content" backgroundColor={C.bg} />
+    <View style={s.root}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[s.content, compact && s.contentCompact]}>
+        <View style={s.header}>
+          <View style={s.brandIcon}><GraduationCap size={21} color={C.bg} strokeWidth={2.4} /></View>
+          <View style={s.brandCopy}><Text style={s.brand}>CIVILPREP</Text><Text style={s.brandSub}>GYANKUNJ ACADEMY</Text></View>
+          <Pressable accessibilityLabel="Profile" style={s.avatar}><Text style={s.avatarText}>K</Text><View style={s.avatarDot} /></Pressable>
+        </View>
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ExpoStatusBar style="dark" />
-      <StatusBar barStyle="dark-content" backgroundColor={theme.color.canvas} />
-      <View style={styles.root}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.scrollContent, compact && styles.scrollContentCompact]}
-        >
-          <View style={styles.header}>
-            <Pressable accessibilityLabel="Open menu" style={styles.brandMark}>
-              <GraduationCap size={22} color="#FFFFFF" strokeWidth={2.2} />
-            </Pressable>
-            <View style={styles.brandText}>
-              <Text style={styles.brandName}>CIVILPREP</Text>
-              <Text style={styles.brandSub}>GYANKUNJ ACADEMY</Text>
-            </View>
-            <Pressable accessibilityLabel="Open profile" style={styles.avatar}>
-              <Text style={styles.avatarText}>K</Text>
-              <View style={styles.avatarStatus} />
-            </Pressable>
+        <View style={s.greeting}>
+          <Label color={C.lime}>THURSDAY  ·  29 OCT</Label>
+          <Text style={s.headline}>Your future,{"\n"}<Text style={s.headlineAccent}>in motion.</Text></Text>
+          <Text style={s.subhead}>One smart session at a time.</Text>
+        </View>
+
+        <LinearGradient colors={["#8056E9", "#44377F", "#20223E"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.hero}>
+          <View style={s.heroOrbOne} /><View style={s.heroOrbTwo} /><View style={s.heroOrbThree} />
+          <View style={s.heroTop}>
+            <View style={s.heroPill}><View style={s.liveDot} /><Text style={s.heroPillText}>CONTINUE YOUR JOURNEY</Text></View>
+            <View style={s.heroArrow}><ArrowUpRight size={17} color={C.ink} /></View>
           </View>
+          <Label color="#E6DFFF">01  /  INDIAN POLITY</Label>
+          <Text style={s.heroTitle}>Fundamental{"\n"}Rights</Text>
+          <Text style={s.heroMeta}>Chapter 04  ·  18 min left</Text>
+          <View style={s.progressMeta}><Text style={s.progressLabel}>YOUR MOMENTUM</Text><Text style={s.progressPercent}>68%</Text></View>
+          <View style={s.progressTrack}><LinearGradient colors={[C.lime, "#B7FFBA"]} style={s.progressFill} /></View>
+          <View style={s.heroFooter}><Text style={s.heroFooterText}>Pick up where you left off</Text><Pressable style={s.resume}><Text style={s.resumeText}>Resume</Text><ArrowRight size={14} color={C.bg} /></Pressable></View>
+        </LinearGradient>
 
-          <View style={styles.greeting}>
-            <Eyebrow>THURSDAY, 29 OCTOBER</Eyebrow>
-            <Text style={styles.headline}>Your next rank{ "\n" }starts today.</Text>
-            <Text style={styles.greetingSub}>A little progress, every single day.</Text>
-          </View>
-
-          <LinearGradient
-            colors={["#171B30", "#24223F", "#342650"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hero}
-          >
-            <View style={styles.heroGlow} />
-            <View style={styles.heroHeader}>
-              <View style={styles.heroPill}>
-                <Play size={10} fill={theme.color.roseSoft} color={theme.color.roseSoft} />
-                <Text style={styles.heroPillText}>PICK UP WHERE YOU LEFT OFF</Text>
-              </View>
-              <View style={styles.heroArrow}>
-                <ArrowUpRight size={17} color="#FFFFFF" />
-              </View>
-            </View>
-            <Text style={styles.heroTitle}>Indian Polity</Text>
-            <Text style={styles.heroSub}>Fundamental Rights · Chapter 04</Text>
-            <View style={styles.progressMeta}>
-              <Text style={styles.progressLabel}>YOUR PROGRESS</Text>
-              <Text style={styles.progressPercent}>68%</Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <LinearGradient
-                colors={["#FF6BA5", "#D9A8FF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.progressFill}
-              />
-            </View>
-            <View style={styles.heroFooter}>
-              <Text style={styles.heroFooterText}>18 min left to finish</Text>
-              <Pressable accessibilityRole="button" style={styles.resumeButton}>
-                <Text style={styles.resumeText}>Resume</Text>
-                <ArrowRight size={15} color={theme.color.navy} />
-              </Pressable>
-            </View>
-          </LinearGradient>
-
-          <View style={styles.section}>
-            <SectionTitle title="Your daily momentum" action="View stats" />
-            <View style={styles.statsRow}>
-              <StatCard value="2h 40m" label="FOCUS TIME" icon={Timer} />
-              <StatCard value="12 days" label="STREAK" icon={Flame} />
-              <StatCard value="4 / 5" label="TASKS DONE" icon={Check} accent="rose" />
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <SectionTitle title="Made for your exam" action="See all" />
-            <View style={styles.bentoGrid}>
-              <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bentoLarge, pressed && styles.pressed]}>
-                <LinearGradient colors={["#F0E9FF", "#E8E1FF"]} style={styles.bentoGradient}>
-                  <View style={styles.bentoIconPurple}>
-                    <Zap size={19} color={theme.color.violet} fill={theme.color.violet} />
-                  </View>
-                  <View style={styles.bentoBottom}>
-                    <Text style={styles.bentoTitle}>Daily Drill</Text>
-                    <Text style={styles.bentoSubtitle}>10 MCQs · 8 min</Text>
-                  </View>
-                  <View style={styles.bentoArrowPurple}>
-                    <ArrowUpRight size={15} color={theme.color.violet} />
-                  </View>
-                </LinearGradient>
-              </Pressable>
-              <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bentoLarge, pressed && styles.pressed]}>
-                <LinearGradient colors={["#FFE4EE", "#FFD9E8"]} style={styles.bentoGradient}>
-                  <View style={styles.bentoIconRose}>
-                    <Newspaper size={19} color={theme.color.rose} />
-                  </View>
-                  <View style={styles.bentoBottom}>
-                    <Text style={styles.bentoTitle}>Daily Crux</Text>
-                    <Text style={styles.bentoSubtitle}>5 key updates</Text>
-                  </View>
-                  <View style={styles.bentoArrowRose}>
-                    <ArrowUpRight size={15} color={theme.color.rose} />
-                  </View>
-                </LinearGradient>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <SectionTitle title="Keep your streak alive" action="Open planner" />
-            <View style={styles.targetCard}>
-              <View style={styles.targetIcon}>
-                <Target size={20} color={theme.color.rose} />
-              </View>
-              <View style={styles.targetCopy}>
-                <Text style={styles.targetTitle}>One more task to go</Text>
-                <Text style={styles.targetSub}>Complete today's revision target.</Text>
-                <View style={styles.targetProgressTrack}>
-                  <View style={styles.targetProgressFill} />
-                </View>
-              </View>
-              <View style={styles.targetCount}>
-                <Text style={styles.targetCountText}>80%</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <SectionTitle title="Jump back in" />
-            <View style={styles.quickList}>
-              <QuickAction title="Revision cards" subtitle="Fundamental Rights · 12 cards" icon={BookOpen} tint={theme.color.violetSoft} ink={theme.color.violet} />
-              <QuickAction title="Current affairs" subtitle="October 29 · Daily brief" icon={Newspaper} tint={theme.color.mint} ink={theme.color.success} />
-              <QuickAction title="Mock test analysis" subtitle="Review your last attempt" icon={Trophy} tint={theme.color.amber} ink="#9A6411" />
-            </View>
-          </View>
-
-          <View style={styles.footerNote}>
-            <Sparkles size={14} color={theme.color.rose} />
-            <Text style={styles.footerNoteText}>Small steps. Strong preparation. Your future.</Text>
-          </View>
-        </ScrollView>
-
-        <View style={styles.navWrap}>
-          <View style={styles.floatingNav}>
-            {tabs.map(({ label, icon: Icon }) => {
-              const active = activeTab === label;
-              return (
-                <Pressable
-                  key={label}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  onPress={() => setActiveTab(label)}
-                  style={({ pressed }) => [
-                    styles.navItem,
-                    active && styles.navItemActive,
-                    pressed && styles.navPressed,
-                  ]}
-                >
-                  <Icon size={19} color={active ? theme.color.rose : theme.color.muted} strokeWidth={active ? 2.5 : 1.9} />
-                  <Text style={[styles.navLabel, active && styles.navLabelActive]}>{label}</Text>
-                </Pressable>
-              );
-            })}
+        <View style={s.section}>
+          <SectionHeading title="Your daily momentum" action="View stats" />
+          <View style={s.statsRow}>
+            <Stat icon={Timer} value="2h 40m" label="FOCUS TIME" />
+            <Stat icon={Flame} value="12 days" label="STREAK" />
+            <Stat icon={Check} value="4 / 5" label="TASKS DONE" accent />
           </View>
         </View>
-      </View>
-    </SafeAreaView>
-  );
+
+        <View style={s.section}>
+          <Label>THE DAILY LOOP</Label>
+          <SectionHeading title="Small wins. Big rank energy." action="See all" />
+          <View style={s.bentoRow}>
+            <Pressable style={({ pressed }) => [s.bentoCard, pressed && s.pressed]}>
+              <LinearGradient colors={["#E8E1FF", "#CFC1FF"]} style={s.bentoGradient}>
+                <View style={s.bentoIcon}><Zap size={19} color="#5C3BB6" fill="#5C3BB6" /></View>
+                <View><Text style={s.bentoKicker}>PRACTICE / 01</Text><Text style={s.bentoTitle}>Daily Drill</Text><Text style={s.bentoMeta}>10 MCQs · 8 min</Text></View>
+                <View style={s.bentoArrow}><ArrowUpRight size={15} color="#5C3BB6" /></View>
+              </LinearGradient>
+            </Pressable>
+            <Pressable style={({ pressed }) => [s.bentoCard, pressed && s.pressed]}>
+              <LinearGradient colors={["#FFD8E8", "#FFB9D5"]} style={s.bentoGradient}>
+                <View style={s.bentoIcon}><Newspaper size={19} color="#A92763" /></View>
+                <View><Text style={s.bentoKicker}>CURRENT AFFAIRS</Text><Text style={s.bentoTitle}>Daily Crux</Text><Text style={s.bentoMeta}>5 key updates</Text></View>
+                <View style={s.bentoArrow}><ArrowUpRight size={15} color="#A92763" /></View>
+              </LinearGradient>
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={s.streakCard}>
+          <View style={s.streakIcon}><Sparkles size={18} color={C.lime} /></View>
+          <View style={s.streakCopy}><Text style={s.streakTitle}>12-day streak</Text><Text style={s.streakSubtitle}>You're building a powerful habit.</Text></View>
+          <Text style={s.streakPlus}>+1</Text>
+        </View>
+
+        <View style={s.section}>
+          <SectionHeading title="Jump back in" action="Open planner" />
+          <View style={s.quickList}>
+            <QuickRow icon={BookOpen} title="Revision cards" subtitle="Fundamental Rights · 12 cards" tint="#30274B" ink={C.violet} />
+            <QuickRow icon={Newspaper} title="Current affairs" subtitle="October 29 · Daily brief" tint="#1D3A36" ink="#7BE0B0" />
+            <QuickRow icon={Trophy} title="Mock test analysis" subtitle="Review your last attempt" tint="#3A3020" ink="#FFD080" />
+          </View>
+        </View>
+
+        <View style={s.footer}><Sparkles size={13} color={C.rose} /><Text style={s.footerText}>Small steps. Strong preparation. Your future.</Text></View>
+      </ScrollView>
+
+      <View style={s.navWrap}><View style={s.nav}>
+        {tabs.map(({ label, icon: Icon }) => {
+          const active = activeTab === label;
+          return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => setActiveTab(label)} style={({ pressed }) => [s.navItem, active && s.navItemActive, pressed && s.pressed]}>
+            <Icon size={18} color={active ? C.rose : C.faint} strokeWidth={active ? 2.4 : 1.8} />
+            <Text style={[s.navLabel, active && s.navLabelActive]}>{label.toUpperCase()}</Text>
+          </Pressable>;
+        })}
+      </View></View>
+    </View>
+  </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
-  errorScreen: { flex: 1, backgroundColor: "#F6F6FA", padding: 24, justifyContent: "center", gap: 12 },
-  errorEyebrow: { color: "#F53B85", fontSize: 11, fontWeight: "800", letterSpacing: 1.1 },
-  errorTitle: { color: "#131726", fontSize: 24, fontWeight: "800" },
-  errorMessage: { color: "#9B174D", fontSize: 14, lineHeight: 21, fontWeight: "600" },
-  errorHint: { color: "#686D7E", fontSize: 12, lineHeight: 18 },
-  safeArea: { flex: 1, backgroundColor: theme.color.canvas },
-  root: { flex: 1, backgroundColor: theme.color.canvas },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 130, gap: 24 },
-  scrollContentCompact: { paddingHorizontal: 16, gap: 20 },
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: C.bg }, root: { flex: 1, backgroundColor: C.bg },
+  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 124, gap: 24 },
+  contentCompact: { paddingHorizontal: 16, gap: 20 },
   header: { flexDirection: "row", alignItems: "center", gap: 10 },
-  brandMark: { width: 42, height: 42, borderRadius: 15, backgroundColor: theme.color.navy, alignItems: "center", justifyContent: "center" },
-  brandText: { flex: 1, gap: 2 },
-  brandName: { color: theme.color.ink, fontSize: 13, fontWeight: "900", letterSpacing: 1.1 },
-  brandSub: { color: theme.color.muted, fontSize: 9, fontWeight: "700", letterSpacing: 1.35 },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: theme.color.roseSoft, alignItems: "center", justifyContent: "center", position: "relative" },
-  avatarText: { color: theme.color.rose, fontSize: 15, fontWeight: "800" },
-  avatarStatus: { position: "absolute", width: 9, height: 9, borderRadius: 5, backgroundColor: theme.color.success, right: 0, bottom: 1, borderWidth: 2, borderColor: theme.color.canvas },
-  greeting: { gap: 6 },
-  eyebrow: { fontSize: 10, letterSpacing: 1.45, fontWeight: "800" },
-  headline: { fontSize: 30, lineHeight: 35, letterSpacing: -0.9, fontWeight: "800", color: theme.color.ink },
-  greetingSub: { color: theme.color.muted, fontSize: 13, lineHeight: 19 },
-  hero: { borderRadius: 28, padding: 18, overflow: "hidden", minHeight: 220, ...shadow.card },
-  heroGlow: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "#604078", opacity: 0.26, right: -70, top: -80 },
-  heroHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  heroPill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(255,255,255,0.10)", paddingHorizontal: 10, paddingVertical: 7, borderRadius: 99 },
-  heroPillText: { color: "#F9D7E6", fontSize: 8, letterSpacing: 0.65, fontWeight: "800" },
-  heroArrow: { width: 30, height: 30, borderRadius: 11, backgroundColor: "rgba(255,255,255,0.10)", alignItems: "center", justifyContent: "center" },
-  heroTitle: { marginTop: 12, fontSize: 25, lineHeight: 30, fontWeight: "800", color: "#FFFFFF", letterSpacing: -0.5 },
-  heroSub: { color: "#C3C5D2", fontSize: 12, marginTop: 2 },
-  progressMeta: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 15, marginBottom: 7 },
-  progressLabel: { fontSize: 9, letterSpacing: 1, color: "#B9BBCB", fontWeight: "700" },
-  progressPercent: { fontSize: 11, color: "#FFFFFF", fontWeight: "800" },
-  progressTrack: { height: 6, borderRadius: 8, backgroundColor: "#3B3E53", overflow: "hidden" },
-  progressFill: { width: "68%", height: "100%", borderRadius: 8 },
-  heroFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 12 },
-  heroFooterText: { fontSize: 11, color: "#C6C7D3" },
-  resumeButton: { flexDirection: "row", alignItems: "center", gap: 7, backgroundColor: "#FDE0EC", borderRadius: 99, paddingHorizontal: 13, paddingVertical: 9 },
-  resumeText: { fontSize: 11, fontWeight: "800", color: theme.color.navy },
-  section: { gap: 12 },
-  sectionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  sectionTitle: { color: theme.color.ink, fontSize: 17, fontWeight: "800", letterSpacing: -0.3, flex: 1 },
-  inlineAction: { flexDirection: "row", alignItems: "center", gap: 3 },
-  inlineActionText: { color: theme.color.violet, fontSize: 11, fontWeight: "700" },
-  statsRow: { flexDirection: "row", gap: 9 },
-  statCard: { flex: 1, minWidth: 0, paddingHorizontal: 11, paddingVertical: 12, backgroundColor: theme.color.surface, borderRadius: 18, gap: 7, borderWidth: 1, borderColor: "#F0F0F4" },
-  statCardRose: { backgroundColor: theme.color.roseSoft, borderColor: "#FFD2E2" },
-  statTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  statDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: theme.color.rose },
-  statValue: { color: theme.color.ink, fontSize: 15, fontWeight: "800", letterSpacing: -0.4 },
-  statLabel: { color: theme.color.muted, fontSize: 8, letterSpacing: 0.7, fontWeight: "800" },
-  bentoGrid: { flexDirection: "row", gap: 12 },
-  bentoLarge: { flex: 1, minWidth: 0, borderRadius: 23, overflow: "hidden" },
-  bentoGradient: { minHeight: 142, padding: 14, justifyContent: "space-between" },
-  bentoIconPurple: { width: 38, height: 38, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.75)", alignItems: "center", justifyContent: "center" },
-  bentoIconRose: { width: 38, height: 38, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.75)", alignItems: "center", justifyContent: "center" },
-  bentoBottom: { gap: 4, paddingRight: 12 },
-  bentoTitle: { fontSize: 16, color: theme.color.ink, fontWeight: "800", letterSpacing: -0.3 },
-  bentoSubtitle: { fontSize: 11, color: "#55596A" },
-  bentoArrowPurple: { position: "absolute", right: 12, bottom: 13, width: 25, height: 25, borderRadius: 9, backgroundColor: "rgba(255,255,255,0.75)", alignItems: "center", justifyContent: "center" },
-  bentoArrowRose: { position: "absolute", right: 12, bottom: 13, width: 25, height: 25, borderRadius: 9, backgroundColor: "rgba(255,255,255,0.75)", alignItems: "center", justifyContent: "center" },
-  targetCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, backgroundColor: theme.color.surface, borderRadius: 21, borderWidth: 1, borderColor: "#EEEEF3" },
-  targetIcon: { width: 42, height: 42, borderRadius: 15, backgroundColor: theme.color.roseSoft, alignItems: "center", justifyContent: "center" },
-  targetCopy: { flex: 1, gap: 4 },
-  targetTitle: { color: theme.color.ink, fontSize: 13, fontWeight: "800" },
-  targetSub: { color: theme.color.muted, fontSize: 10, lineHeight: 15 },
-  targetProgressTrack: { height: 4, borderRadius: 4, backgroundColor: "#F0DDE5", marginTop: 3, overflow: "hidden" },
-  targetProgressFill: { height: "100%", width: "80%", borderRadius: 4, backgroundColor: theme.color.rose },
-  targetCount: { width: 43, height: 43, borderRadius: 22, borderWidth: 3, borderColor: "#FFC6DB", alignItems: "center", justifyContent: "center" },
-  targetCountText: { fontSize: 10, fontWeight: "800", color: theme.color.rose },
-  quickList: { gap: 9 },
-  quickCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 13, borderRadius: 18, backgroundColor: theme.color.surface, borderWidth: 1, borderColor: "#EEEEF3" },
-  quickIcon: { width: 40, height: 40, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  quickText: { flex: 1, gap: 4 },
-  quickTitle: { color: theme.color.ink, fontSize: 13, fontWeight: "800" },
-  quickSubtitle: { color: theme.color.muted, fontSize: 11 },
-  pressed: { opacity: 0.86, transform: [{ scale: 0.99 }] },
-  footerNote: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingTop: 2 },
-  footerNoteText: { color: theme.color.muted, fontSize: 10, fontWeight: "600" },
-  navWrap: { position: "absolute", left: 16, right: 16, bottom: 10 },
-  floatingNav: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", backgroundColor: "rgba(255,255,255,0.97)", borderRadius: 26, paddingHorizontal: 5, paddingVertical: 7, borderWidth: 1, borderColor: "#ECECF2", ...shadow.card },
-  navItem: { flex: 1, minWidth: 0, height: 48, alignItems: "center", justifyContent: "center", gap: 3, borderRadius: 17 },
-  navItemActive: { backgroundColor: theme.color.roseSoft },
-  navPressed: { opacity: 0.7 },
-  navLabel: { color: theme.color.muted, fontSize: 9, fontWeight: "600" },
-  navLabelActive: { color: theme.color.rose, fontWeight: "800" },
+  brandIcon: { width: 42, height: 42, borderRadius: 15, backgroundColor: C.lime, alignItems: "center", justifyContent: "center" },
+  brandCopy: { flex: 1, gap: 3 }, brand: { color: C.ink, fontSize: 13, fontWeight: "900", letterSpacing: 1.35 },
+  brandSub: { color: C.muted, fontSize: 9, fontWeight: "700", letterSpacing: 1.5 },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#29233D", borderWidth: 1, borderColor: "#51416E", alignItems: "center", justifyContent: "center" },
+  avatarText: { color: C.ink, fontSize: 15, fontWeight: "800" }, avatarDot: { position: "absolute", width: 8, height: 8, right: 1, bottom: 1, borderRadius: 4, backgroundColor: C.lime, borderWidth: 1, borderColor: C.bg },
+  greeting: { gap: 7 }, eyebrow: { fontSize: 9, fontWeight: "800", letterSpacing: 1.55 },
+  headline: { color: C.ink, fontSize: 37, lineHeight: 41, letterSpacing: -1.5, fontWeight: "900" },
+  headlineAccent: { color: C.lime }, subhead: { color: C.muted, fontSize: 12, letterSpacing: 0.15 },
+  hero: { minHeight: 245, borderRadius: 26, padding: 17, gap: 10, overflow: "hidden" },
+  heroOrbOne: { position: "absolute", right: -30, top: -36, width: 170, height: 170, borderRadius: 85, backgroundColor: "#FF5CA8", opacity: 0.15 },
+  heroOrbTwo: { position: "absolute", right: -2, top: 28, width: 118, height: 118, borderRadius: 59, borderWidth: 1, borderColor: "#D8FF6A", opacity: 0.32 },
+  heroOrbThree: { position: "absolute", right: 20, top: 50, width: 74, height: 74, borderRadius: 37, borderWidth: 1, borderColor: "#D8FF6A", opacity: 0.24 },
+  heroTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 3 },
+  heroPill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(10,11,28,0.28)", borderRadius: 99, paddingHorizontal: 10, paddingVertical: 7 },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.lime },
+  heroPillText: { color: "#F3EFFF", fontSize: 8, fontWeight: "800", letterSpacing: 0.5 },
+  heroArrow: { width: 30, height: 30, borderRadius: 11, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
+  heroTitle: { color: C.ink, fontSize: 27, lineHeight: 29, fontWeight: "900", letterSpacing: -0.6 },
+  heroMeta: { color: "#E0DDF8", fontSize: 11, marginTop: -5 },
+  progressMeta: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 2 },
+  progressLabel: { color: "#D4CCF1", fontSize: 8, fontWeight: "800", letterSpacing: 1.2 },
+  progressPercent: { color: C.lime, fontSize: 12, fontWeight: "900" },
+  progressTrack: { height: 5, borderRadius: 5, backgroundColor: "#69608F", overflow: "hidden" },
+  progressFill: { width: "68%", height: 5, borderRadius: 5 },
+  heroFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 1 },
+  heroFooterText: { color: "#D5D0ED", fontSize: 10 }, resume: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: C.lime, borderRadius: 99, paddingHorizontal: 12, paddingVertical: 8 },
+  resumeText: { color: C.bg, fontSize: 10, fontWeight: "900" },
+  section: { gap: 11 }, sectionHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  sectionTitle: { flex: 1, color: C.ink, fontSize: 16, fontWeight: "800", letterSpacing: -0.35 },
+  actionRow: { flexDirection: "row", alignItems: "center", gap: 3 }, actionText: { color: C.violet, fontSize: 10, fontWeight: "800" },
+  statsRow: { flexDirection: "row", gap: 8 }, statCard: { flex: 1, minWidth: 0, backgroundColor: C.surface, borderRadius: 17, borderWidth: 1, borderColor: C.border, padding: 11, gap: 8 },
+  statAccent: { backgroundColor: "#202A28", borderColor: "#48533A" }, statValue: { color: C.ink, fontSize: 14, fontWeight: "900", letterSpacing: -0.5 },
+  statLabel: { color: C.muted, fontSize: 7, fontWeight: "800", letterSpacing: 0.65 },
+  bentoRow: { flexDirection: "row", gap: 11 }, bentoCard: { flex: 1, minWidth: 0, borderRadius: 22, overflow: "hidden" },
+  bentoGradient: { minHeight: 139, padding: 13, justifyContent: "space-between" },
+  bentoIcon: { width: 36, height: 36, borderRadius: 13, backgroundColor: "rgba(255,255,255,0.58)", alignItems: "center", justifyContent: "center" },
+  bentoKicker: { color: "#6C5C9D", fontSize: 7, fontWeight: "900", letterSpacing: 0.7, marginBottom: 4 },
+  bentoTitle: { color: "#17142C", fontSize: 16, fontWeight: "900", letterSpacing: -0.3 }, bentoMeta: { color: "#5F5879", fontSize: 9, marginTop: 3 },
+  bentoArrow: { position: "absolute", right: 11, bottom: 12, width: 25, height: 25, borderRadius: 9, backgroundColor: "rgba(255,255,255,0.62)", alignItems: "center", justifyContent: "center" },
+  streakCard: { flexDirection: "row", alignItems: "center", gap: 11, padding: 13, borderRadius: 19, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
+  streakIcon: { width: 37, height: 37, borderRadius: 14, backgroundColor: "#302A28", alignItems: "center", justifyContent: "center" },
+  streakCopy: { flex: 1, gap: 4 }, streakTitle: { color: C.ink, fontSize: 13, fontWeight: "900" }, streakSubtitle: { color: C.muted, fontSize: 10 },
+  streakPlus: { color: C.lime, fontSize: 17, fontWeight: "900" }, quickList: { gap: 8 },
+  quickRow: { flexDirection: "row", alignItems: "center", gap: 11, padding: 12, borderRadius: 17, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
+  quickIcon: { width: 39, height: 39, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  quickCopy: { flex: 1, gap: 4 }, quickTitle: { color: C.ink, fontSize: 12, fontWeight: "800" }, quickSubtitle: { color: C.muted, fontSize: 10 },
+  pressed: { opacity: 0.82, transform: [{ scale: 0.99 }] },
+  footer: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 7, paddingTop: 2 },
+  footerText: { color: C.muted, fontSize: 9, fontWeight: "600" },
+  navWrap: { position: "absolute", left: 16, right: 16, bottom: 8 },
+  nav: { flexDirection: "row", alignItems: "center", justifyContent: "space-around", backgroundColor: "rgba(25,28,49,0.98)", borderRadius: 25, paddingHorizontal: 4, paddingVertical: 6, borderWidth: 1, borderColor: "#343750" },
+  navItem: { flex: 1, minWidth: 0, height: 47, alignItems: "center", justifyContent: "center", gap: 4, borderRadius: 16 },
+  navItemActive: { backgroundColor: "#302344" }, navLabel: { color: C.faint, fontSize: 7, fontWeight: "800", letterSpacing: 0.35 },
+  navLabelActive: { color: C.ink },
+  errorScreen: { flex: 1, backgroundColor: C.bg, padding: 24, justifyContent: "center", gap: 12 },
+  errorEyebrow: { color: C.rose, fontSize: 11, fontWeight: "800", letterSpacing: 1.1 },
+  errorTitle: { color: C.ink, fontSize: 24, fontWeight: "800" }, errorMessage: { color: C.rose, fontSize: 14, lineHeight: 21, fontWeight: "600" },
+  errorHint: { color: C.muted, fontSize: 12, lineHeight: 18 },
 });
-
-class AppErrorBoundary extends Component<
-  { children: React.ReactNode },
-  { error: Error | null }
-> {
+class AppErrorBoundary extends Component<{ children: React.ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
-
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  componentDidCatch(error: Error) {
-    console.error("CivilPrep UI render error:", error);
-  }
-
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error) { console.error("CivilPrep UI render error:", error); }
   render() {
-    if (this.state.error) {
-      return (
-        <View style={styles.errorScreen}>
-          <Text style={styles.errorEyebrow}>CIVILPREP • STARTUP DIAGNOSTIC</Text>
-          <Text style={styles.errorTitle}>The screen hit a rendering error.</Text>
-          <Text style={styles.errorMessage}>{this.state.error.message || "Unknown rendering error"}</Text>
-          <Text style={styles.errorHint}>Please share this message so the exact cause can be fixed.</Text>
-        </View>
-      );
-    }
+    if (this.state.error) return <View style={s.errorScreen}>
+      <Text style={s.errorEyebrow}>CIVILPREP • STARTUP DIAGNOSTIC</Text>
+      <Text style={s.errorTitle}>The screen hit a rendering error.</Text>
+      <Text style={s.errorMessage}>{this.state.error.message || "Unknown rendering error"}</Text>
+      <Text style={s.errorHint}>Please share this message so the exact cause can be fixed.</Text>
+    </View>;
     return this.props.children;
   }
 }
-
 export default function App() {
-  return (
-    <AppErrorBoundary>
-      <SafeAreaProvider>
-        <AppContent />
-      </SafeAreaProvider>
-    </AppErrorBoundary>
-  );
+  return <AppErrorBoundary><SafeAreaProvider><AppContent /></SafeAreaProvider></AppErrorBoundary>;
 }
