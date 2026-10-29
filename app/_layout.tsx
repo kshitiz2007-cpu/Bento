@@ -4,11 +4,13 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+const PAPER = "#F4F1E9";
+
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#080A12" }}>
-      <StatusBar style="light" backgroundColor="#080A12" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#080A12" }, animation: "fade" }} />
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: PAPER }}>
+      <StatusBar style="dark" backgroundColor={PAPER} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: PAPER }, animation: "fade" }} />
     </GestureHandlerRootView>
   );
 }
