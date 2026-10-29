@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: bento-ui-preview
+    runtime: static
+    branch: design/ui-foundation
+    buildCommand: npm install && npx expo install --fix && npm run build:web
+    staticPublishPath: ./dist
