@@ -147,7 +147,7 @@ export function CivilPrepDashboard() {
                     <Eyebrow color={active ? LIME : MUTED}>{subject.short}</Eyebrow>
                     <Text style={[styles.atlasTitle, active && styles.atlasTitleActive]}>{subject.name}</Text>
                     <Text style={[styles.atlasCount, active && styles.atlasCountActive]}>{subject.count}</Text>
-                    <View style={[styles.atlasProgress, active && styles.atlasProgressActive]}><View style={[styles.atlasProgressFill, { width: subject.progress + "%" }, active && styles.atlasProgressFillActive]} /></View>
+                    <View style={[styles.atlasProgress, active && styles.atlasProgressActive]}><View style={[styles.atlasProgressFill, { width: `${subject.progress}%` as `${number}%` }, active && styles.atlasProgressFillActive]} /></View>
                   </View>
                   <View style={styles.atlasRowEnd}><Text style={[styles.atlasPercent, active && styles.atlasPercentActive]}>{subject.progress}%</Text><ChevronRight size={17} color={active ? LIME : MUTED} /></View>
                 </Pressable>;
