@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Bento UI Lab",
+    "slug": "bento-ui-lab",
+    "scheme": "bentoui",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "plugins": ["expo-router", "expo-font", "expo-image", "expo-haptics", "expo-blur", "expo-linear-gradient", "react-native-keyboard-controller"],
+    "experiments": { "typedRoutes": true },
+    "android": { "package": "com.gyankunj.bentouilab", "edgeToEdgeEnabled": true },
+    "ios": { "bundleIdentifier": "com.gyankunj.bentouilab" },
+    "web": { "bundler": "metro" }
+  }
+}

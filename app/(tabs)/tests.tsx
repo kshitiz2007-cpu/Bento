@@ -1,0 +1,16 @@
+import { ClipboardCheck, Clock3, Flame, Target, TrendingUp } from "lucide-react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BentoCard, PageHeader, SectionHeader } from "@/components/ui";
+
+export default function TestsScreen() {
+  return <SafeAreaView className="flex-1 bg-ink" edges={["top"]}><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 128 }}>
+    <PageHeader eyebrow="PRACTICE ARENA" title="Train your recall." subtitle="Small, consistent attempts build exam-day confidence." />
+    <View className="flex-row gap-3"><BentoCard className="flex-1"><Target size={19} color="#B9A6FF" /><Text className="mt-4 text-2xl font-bold text-white">78%</Text><Text className="mt-1 text-xs text-muted">Mock accuracy</Text></BentoCard><BentoCard className="flex-1"><Flame size={19} color="#F2A6CE" /><Text className="mt-4 text-2xl font-bold text-white">12</Text><Text className="mt-1 text-xs text-muted">Tests completed</Text></BentoCard></View>
+    <SectionHeader title="Ready when you are" action="View history" />
+    <Pressable className="rounded-[28px] border border-lilac/20 bg-panel p-5"><View className="mb-5 flex-row items-center justify-between"><View className="h-11 w-11 items-center justify-center rounded-2xl bg-lilac/15"><ClipboardCheck size={21} color="#B9A6FF" /></View><View className="rounded-full border border-[#8DD9C3]/25 bg-[#8DD9C3]/10 px-3 py-1.5"><Text className="text-[10px] font-bold tracking-wide text-[#8DD9C3]">DAILY PRACTICE</Text></View></View><Text className="text-xl font-bold text-white">Daily Prelims Drill</Text><Text className="mt-2 text-sm leading-5 text-muted">A focused set of 15 questions to warm up your recall.</Text><View className="mt-5 flex-row items-center gap-4"><View className="flex-row items-center gap-1.5"><ClipboardCheck size={14} color="#9298AD" /><Text className="text-xs text-muted">15 questions</Text></View><View className="flex-row items-center gap-1.5"><Clock3 size={14} color="#9298AD" /><Text className="text-xs text-muted">10 minutes</Text></View></View><View className="mt-5 rounded-2xl bg-champagne px-4 py-3.5"><Text className="text-center text-sm font-bold text-[#111522]">Preview practice flow ↗</Text></View></Pressable>
+    <SectionHeader title="Your recent momentum" />
+    <BentoCard><View className="flex-row items-center justify-between"><View><Text className="text-sm font-bold text-white">Polity mini test</Text><Text className="mt-1 text-xs text-muted">Yesterday · 20 questions</Text></View><View className="items-end"><Text className="text-xl font-bold text-[#8DD9C3]">16/20</Text><Text className="mt-1 text-[10px] text-muted">80% accuracy</Text></View></View><View className="my-4 h-px bg-white/10" /><View className="flex-row items-center gap-2"><TrendingUp size={16} color="#8DD9C3" /><Text className="text-xs text-[#C1C2D2]">Demo insight: consistency is trending up.</Text></View></BentoCard>
+    <Text className="mt-4 text-center text-[10px] leading-4 text-[#777E95]">All scores and test details are mock data for UI review only.</Text>
+  </ScrollView></SafeAreaView>;
+}

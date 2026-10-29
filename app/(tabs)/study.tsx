@@ -1,0 +1,19 @@
+import { useRouter } from "expo-router";
+import { ArrowUpRight, BookOpen, CheckCircle2, Clock3, LockKeyhole, Search } from "lucide-react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BentoCard, PageHeader, ProgressBar, SectionHeader } from "@/components/ui";
+import { mockCourses } from "@/lib/mock-data";
+
+export default function StudyScreen() {
+  const router = useRouter();
+  return <SafeAreaView className="flex-1 bg-ink" edges={["top"]}><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 128 }}>
+    <PageHeader eyebrow="YOUR CURRICULUM" title="Study, with intent." subtitle="Your learning tracks, organized around progress — not clutter." />
+    <View className="mb-5 flex-row items-center gap-3 rounded-2xl border border-white/10 bg-panel px-4 py-3"><Search size={18} color="#9298AD" /><Text className="text-sm text-muted">Search subjects, topics or lessons</Text></View>
+    <View className="flex-row gap-2">{["All courses", "In progress", "Saved"].map((label, i) => <View key={label} className={`rounded-full px-3 py-2 ${i === 0 ? "bg-lilac/15" : "border border-white/10"}`}><Text className={`text-xs font-semibold ${i === 0 ? "text-[#C8B9FF]" : "text-muted"}`}>{label}</Text></View>)}</View>
+    <SectionHeader title="Your courses" action="3 tracks" />
+    <View className="gap-3">{mockCourses.map((course, index) => <Pressable key={course.id} onPress={() => router.push("/library")} className="rounded-[26px] border border-white/[0.07] bg-panel p-4"><View className="flex-row items-start gap-3"><View style={{ backgroundColor: course.color + "20" }} className="h-[54px] w-[54px] items-center justify-center rounded-2xl"><BookOpen size={23} color={course.color} /></View><View className="flex-1"><Text style={{ color: course.color }} className="text-[9px] font-bold tracking-[1.8px]">{course.subtitle}</Text><Text className="mt-1 text-base font-bold text-white">{course.title}</Text><Text className="mt-1 text-xs text-muted">{course.lessons}</Text></View><ArrowUpRight size={18} color="#8F95AA" /></View><View className="mt-4 flex-row items-center justify-between"><Text className="text-xs text-muted">{index === 0 ? "Continue your current module" : "Pick up whenever you're ready"}</Text><Text className="text-xs font-bold text-white">{course.progress}%</Text></View><View className="mt-2"><ProgressBar value={course.progress} color={course.color} /></View></Pressable>)}</View>
+    <SectionHeader title="Learning path" />
+    <BentoCard><View className="flex-row items-start gap-3"><View className="items-center"><View className="h-9 w-9 items-center justify-center rounded-full bg-[#8DD9C3]/15"><CheckCircle2 size={18} color="#8DD9C3" /></View><View className="h-9 w-px bg-white/10" /><View className="h-9 w-9 items-center justify-center rounded-full bg-lilac/15"><Clock3 size={18} color="#B9A6FF" /></View><View className="h-9 w-px bg-white/10" /><View className="h-9 w-9 items-center justify-center rounded-full bg-white/5"><LockKeyhole size={17} color="#9298AD" /></View></View><View className="flex-1 gap-5 pt-1"><View><Text className="text-sm font-bold text-white">Constitutional foundations</Text><Text className="mt-1 text-xs text-muted">Completed · ready for revision</Text></View><View><Text className="text-sm font-bold text-white">Fundamental Rights</Text><Text className="mt-1 text-xs text-lilac">In progress · next up</Text></View><View><Text className="text-sm font-bold text-white">Directive Principles</Text><Text className="mt-1 text-xs text-muted">Unlock after previous module</Text></View></View></View></BentoCard>
+  </ScrollView></SafeAreaView>;
+}
