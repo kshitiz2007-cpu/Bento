@@ -9,13 +9,33 @@ import Svg, {
  * Keep illustrations vector-first so they scale cleanly across Android and web.
  */
 export const VISUAL_TOKENS = {
-  ink: "#172A27",
-  paper: "#F4F1E9",
-  rose: "#F5A5C8",
-  lavender: "#A99BFF",
-  cyan: "#8AE8E0",
-  lime: "#C6F36A",
-  muted: "#91A097",
+  color: {
+    ink: "#172A27",
+    paper: "#F4F1E9",
+    rose: "#F5A5C8",
+    lavender: "#A99BFF",
+    cyan: "#8AE8E0",
+    lime: "#C6F36A",
+    muted: "#91A097",
+    line: "#D9DDD3",
+  },
+  gradient: {
+    cognitive: ["#172A27", "#263B39", "#34315A"],
+    roseMist: ["#FCE7F3", "#E9D5FF", "#DCEAFE"],
+    fieldGlow: ["#F5A5C8", "#A99BFF", "#8AE8E0"],
+    earth: ["#163B36", "#277A68", "#8AE8E0"],
+    archive: ["#3C2824", "#87533D", "#E9B878"],
+  },
+  type: {
+    display: { size: 42, lineHeight: 46, tracking: -1.8 },
+    heading: { size: 28, lineHeight: 34, tracking: -0.8 },
+    title: { size: 18, lineHeight: 24, tracking: -0.3 },
+    body: { size: 14, lineHeight: 22, tracking: 0 },
+    meta: { size: 10, lineHeight: 14, tracking: 1.1 },
+  },
+  space: { xs: 4, sm: 8, md: 12, lg: 18, xl: 24, xxl: 32 },
+  radius: { sm: 8, md: 12, lg: 16, xl: 24, pill: 999 },
+  motion: { quick: 140, standard: 220, emphasis: 320 },
 } as const;
 
 export type SubjectArtVariant = "polity" | "history" | "geography" | "science" | "economy" | "current";
